@@ -1,0 +1,17 @@
+{
+  "name": "mistakes-2",
+  "version": "0.0.0",
+  "description": "mistakes",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "watchify -d -t reactify ./index.jsx -o ./bundle.js & serve -p 3000"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "react": "~0.11.1",
+    "reactify": "~0.14.0",
+    "watchify": "~1.0.2"
+  }
+}
