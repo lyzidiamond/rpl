@@ -12,6 +12,10 @@
   "dependencies": {
     "react": "~0.11.1",
     "reactify": "~0.14.0",
-    "watchify": "~1.0.2"
+    "watchify": "~1.0.2",
+    "codemirror": "https://github.com/tmcw/CodeMirror/archive/module-export.tar.gz",
+    "incremental-eval": "0.0.1",
+    "text-table": "~0.2.0",
+    "debounce": "~1.0.0"
   }
 }

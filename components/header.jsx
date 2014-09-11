@@ -1,9 +1,8 @@
 module.exports = React.createClass({
   render: function() {
     return (
-      <div>
+      <div className='header'>
         mistakes
-        <a onClick={this.create}>new</a>
       </div>
     );
   }

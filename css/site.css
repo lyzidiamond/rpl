@@ -1,0 +1,41 @@
+body {
+    font:14px/20px sans-serif;
+    margin:0;
+    padding:0;
+}
+
+.header {
+    background:#D2D7D3;
+    padding:10px;
+}
+
+.page {
+    position:relative;
+    height:100%;
+}
+
+.editor {
+    position:absolute;
+    top:0;
+    left:0;
+    right:60%;
+    bottom:0;
+}
+
+.output {
+    position:absolute !important;
+    top:0;
+    right:20%;
+    left:40%;
+    background:#eee;
+    bottom:0;
+}
+
+.scope {
+    position:absolute !important;
+    top:0;
+    right:0;
+    left:80%;
+    background:#ddd;
+    bottom:0;
+}
