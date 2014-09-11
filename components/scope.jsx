@@ -26,16 +26,18 @@ module.exports = React.createClass({
             else return '';
         });
     }));
-    var lines = textTable(rotated).split('\n').map(function(varNames) {
-        if (varNames == '') varNames = ' ';
+    var rows = rotated.map(function(data) {
         return (
-            <div className='line'>
-                <pre>{varNames}</pre>
-            </div>);
+            <tr>
+                <td>{data[0]}</td>
+                <td>{data[1]}</td>
+            </tr>);
     });
     return (
       <div className='scope CodeMirror'>
-        {lines}
+        <table>
+            {rows}
+        </table>
       </div>
     );
   }
