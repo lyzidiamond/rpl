@@ -27,11 +27,9 @@ module.exports = React.createClass({
         });
     }));
     var rows = rotated.map(function(data) {
-        return (
-            <tr>
-                <td>{data[0]}</td>
-                <td>{data[1]}</td>
-            </tr>);
+        return <tr>{data.map(function(d) {
+            return <td>{d}</td>;
+        })}</tr>;
     });
     return (
       <div className='scope CodeMirror'>
