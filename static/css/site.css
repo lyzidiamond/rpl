@@ -1,12 +1,7 @@
 body {
   margin:0;
   padding:0;
-  font:14px/20px sans-serif;
-}
-
-.page {
-  position:relative;
-  height:100%;
+  font:20px/20px sans-serif;
 }
 
 #error {
@@ -17,6 +12,7 @@ body {
   top:0;
   right:0;
   color:#fff;
+  z-index:9999;
 }
 
 .editor {
@@ -28,17 +24,31 @@ body {
 }
 
 .data {
-  background:#eee;
-  border-bottom:1px solid #aaa;
-  border-top:1px solid #aaa;
+  background:#000;
+  border-bottom:1px solid #555;
+  border-top:1px solid #555;
+  color:#fff;
   position:relative;
+  padding:12px 5px 5px 5px;
+  margin:5px 0;
 }
 
 .data-name {
   position:absolute;
+  font-size:12px;
   top:0;
   right:0;
-  padding:2px;
-  background:#fff;
+  color:yellow;
+  background:black;
   z-index:9999;
+}
+
+.CodeMirror {
+  position:absolute;
+  top:0;
+  right:0;
+  bottom:0;
+  left:0;
+  overflow:auto;
+  height:auto;
 }

@@ -8,7 +8,12 @@
     "make": "browserify static/index.js > static/bundle.js"
   },
   "bin": {
-    "rpl": "rpl"
+    "rpl": "rpl.js"
+  },
+  "browserify": {
+    "transform": [
+      "brfs"
+    ]
   },
   "author": "Tom MacWright",
   "license": "ISC",
@@ -16,10 +21,12 @@
     "codemirror": "https://github.com/tmcw/CodeMirror/archive/module-export.tar.gz",
     "shoe": "0.0.15",
     "st": "~0.5.2",
-    "through": "~2.3.6"
+    "through": "~2.3.6",
+    "insert-css": "~0.2.0"
   },
   "devDependencies": {
     "watchify": "~1.0.2",
-    "browserify": "~6.0.2"
+    "browserify": "~6.0.2",
+    "brfs": "~1.2.0"
   }
 }

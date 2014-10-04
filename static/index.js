@@ -2,6 +2,12 @@ var through = require('through');
 var shoe = require('shoe');
 var CodeMirror = require('codemirror');
 require('./js/javascript')(CodeMirror);
+var fs = require('fs');
+var insertCss = require('insert-css');
+
+insertCss(fs.readFileSync('./node_modules/codemirror/theme/monokai.css'));
+insertCss(fs.readFileSync('./node_modules/codemirror/lib/codemirror.css'));
+insertCss(fs.readFileSync(__dirname + '/css/site.css', 'utf8'));
 
 var stream = shoe('/eval');
 
@@ -32,11 +38,11 @@ function read(str) {
   });
   widgets = [];
   error.style.display = 'none';
+  console.log(d);
   if (d.error) {
     error.style.display = 'block';
     error.innerHTML = d.error;
   } else if (d.defaultValue) {
-    console.log(d);
     editor.setValue(d.defaultValue);
   } else {
     widgets = d.map(function(val) {
@@ -56,6 +62,8 @@ var editor = CodeMirror.fromTextArea(document.getElementById('editor'), {
   lineNumbers: true,
   autofocus: true
 });
+
+editor.setOption('theme', 'monokai');
 
 editor.on('change', function() {
   stream.write(editor.getValue());

@@ -11,8 +11,6 @@ var path = require('path'),
 module.filename = path.resolve('rpl');
 module.paths = require('module')._nodeModulePaths(module.filename);
 
-console.log(module.filename);
-
 function writeHead(res, contentType) {
   res.writeHead(200, {
     'Content-Type': contentType,
@@ -46,6 +44,7 @@ Mistakes.prototype.listen = function() {
       stream.write(JSON.stringify({ defaultValue: this.defaultValue }));
     }
     stream.on('data', function(d) {
+      var abort = false;
       var sandbox = {
         INSTRUMENT: (function() {
           var DATA = [];
@@ -56,19 +55,28 @@ Mistakes.prototype.listen = function() {
                 line: number,
                 stringified: JSON.stringify(val)
               });
+              _UPDATE();
             },
             DATA: DATA
           };
         })(),
+        _UPDATE: _UPDATE,
         require: require,
         module: module
       };
-      var transformed = atify(d);
+      function _UPDATE() {
+        process.nextTick(function() {
+          if (!abort) stream.write(JSON.stringify(sandbox.INSTRUMENT.DATA));
+        });
+      }
+      var transformed = instrument(d);
       try {
-        vm.runInNewContext(transformed.result, sandbox);
-        stream.write(JSON.stringify(sandbox.INSTRUMENT.DATA));
+        vm.runInNewContext(transformed.result, sandbox, 'tmp.js');
       } catch(e) {
         stream.write(JSON.stringify({ error: e.message }));
+        // make sure we don't send messages after this
+        // that would hide the error.
+        abort = true;
       }
     });
   }.bind(this));
@@ -78,21 +86,26 @@ Mistakes.prototype.listen = function() {
   this.sock = sock;
 };
 
-function atify(str) {
+process.on('uncaughtException', function (err) {
+  console.log('Caught exception: ' + err);
+});
+
+function instrument(str) {
   var hasInstrument = false;
   var result = str.split('\n')
     .map(function(line, i) {
-      if (line[0] === '@') {
-        var name = line.replace('@', '');
-        hasInstrument = true;
-        return ';INSTRUMENT.log(' +
-          '"' + name + '"' +
-          ',' +
-          i + ',' + name + ');';
+      if (line.match(/\/\/=/)) {
+        return line.replace(/(\/\/=)(.*)$/, function(match, _, name, offset, string) {
+          hasInstrument = true;
+          return ';INSTRUMENT.log(' +
+              '"' + name + '"' +
+              ',' +
+              i + ',' + name + ');';
+        });
       } else {
         return line;
       }
-    }).join('\n');
+    }).join('\n') + '\n;_UPDATE();';
   return {
     hasInstrument: hasInstrument,
     result: result
