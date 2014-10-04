@@ -1,0 +1,44 @@
+body {
+  margin:0;
+  padding:0;
+  font:14px/20px sans-serif;
+}
+
+.page {
+  position:relative;
+  height:100%;
+}
+
+#error {
+  padding:5px;
+  background:#d94a38;
+  display:none;
+  position:absolute;
+  top:0;
+  right:0;
+  color:#fff;
+}
+
+.editor {
+  position:absolute;
+  top:0;
+  left:0;
+  right:0%;
+  bottom:0;
+}
+
+.data {
+  background:#eee;
+  border-bottom:1px solid #aaa;
+  border-top:1px solid #aaa;
+  position:relative;
+}
+
+.data-name {
+  position:absolute;
+  top:0;
+  right:0;
+  padding:2px;
+  background:#fff;
+  z-index:9999;
+}

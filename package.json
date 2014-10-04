@@ -1,21 +1,25 @@
 {
-  "name": "mistakes-2",
+  "name": "rpl",
   "version": "0.0.0",
-  "description": "mistakes",
+  "description": "repl",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "watchify -d -t reactify ./index.jsx -o ./bundle.js & serve -p 3000"
+    "watch": "watchify static/index.js -o static/bundle.js",
+    "make": "browserify static/index.js > static/bundle.js"
   },
-  "author": "",
+  "bin": {
+    "rpl": "rpl"
+  },
+  "author": "Tom MacWright",
   "license": "ISC",
   "dependencies": {
-    "react": "~0.11.1",
-    "reactify": "~0.14.0",
-    "watchify": "~1.0.2",
     "codemirror": "https://github.com/tmcw/CodeMirror/archive/module-export.tar.gz",
-    "incremental-eval": "0.0.1",
-    "text-table": "~0.2.0",
-    "debounce": "~1.0.0"
+    "shoe": "0.0.15",
+    "st": "~0.5.2",
+    "through": "~2.3.6"
+  },
+  "devDependencies": {
+    "watchify": "~1.0.2",
+    "browserify": "~6.0.2"
   }
 }
