@@ -1,29 +1,26 @@
-![rpl](logo.png)
+![rpl](images/logo.png)
 
 `rpl` for the future and past. An alternative to the `node` default
 REPL (what you access when you just call `node` and can type in lines of code).
 
+## Install
+
+    npm install -g rpl
+
 The main trick is that this supports time travel. You can instrument code
 calls by using special comments, and edit previous code, changing future values.
 
-Try:
-
-```js
-var a = 2;
-//=a
-```
+![](images/apples.gif)
 
 It also supports async instrumentation, since node is node.
+
+![](images/fs.gif)
 
 ```js
 require('fs').readFile('/etc/hosts', 'utf8', function(err, res) {
   //=res
 });
 ```
-
-## install
-
-    npm install -g rpl
 
 ## hack on a blank page
 
