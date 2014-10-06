@@ -22,13 +22,25 @@ require('fs').readFile('/etc/hosts', 'utf8', function(err, res) {
 });
 ```
 
-## hack on a blank page
+## getting started
 
-    rpl && open http://localhost:3000/
+`rpl` is a node module you install globally. When you run `rpl`, it starts
+up a server at `http://localhost:3000/`, so you'll need to open your browser
+to that page. From there you just type, and when you want to inspect a value,
+add a comment to your source code like:
 
-## hack on file
+```js
+//=variableName
+```
 
-    rpl foo.js && open http://localhost:3000/
+You can also type expressions there, like:
+
+```js
+//=Date()
+```
+
+You can use `require()` just like you would elsewhere, and, like the node
+REPL, `require()` calls become relative to the current working directory.
 
 ## see also
 
