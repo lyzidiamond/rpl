@@ -22,7 +22,9 @@
     "shoe": "0.0.15",
     "st": "~0.5.2",
     "through": "~2.3.6",
-    "insert-css": "~0.2.0"
+    "insert-css": "~0.2.0",
+    "minimist": "~1.1.0",
+    "chrome-app": "0.0.0"
   },
   "devDependencies": {
     "watchify": "~1.0.2",

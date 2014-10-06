@@ -5,6 +5,8 @@ var path = require('path'),
   vm = require('vm'),
   st = require('st'),
   fs = require('fs'),
+  argv = require('minimist')(process.argv.slice(2)),
+  chromeApp = require('chrome-app'),
   shoe = require('shoe');
 
 // from https://github.com/joyent/node/blob/master/lib/repl.js
@@ -147,6 +149,14 @@ function instrument(str) {
 
 module.exports = Mistakes;
 
-var takes = new Mistakes(process.argv[2]);
+var takes = new Mistakes(argv._[0]);
 
-takes.listen(3000);
+takes.listen(null, function(err, res) {
+  var address = 'http://' +
+      takes.server.address().address + ':' +
+      takes.server.address().port;
+  console.log('rpl running at %s', address);
+  if (argv.b) {
+    chromeApp(address);
+  }
+});

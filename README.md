@@ -22,6 +22,17 @@ require('fs').readFile('/etc/hosts', 'utf8', function(err, res) {
 });
 ```
 
+## the binary
+
+```
+rpl [-b] [FILENAME]
+      ^   ^
+      |   |
+      |   | prefill the cli with the contents of a file
+      |
+      | -b open a chrome browser window with the app
+```
+
 ## getting started
 
 `rpl` is a node module you install globally. When you run `rpl`, it starts
