@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// very inspired by mistakes.
+// very inspired by mistakes and morkdown
 var path = require('path'),
   http = require('http'),
   vm = require('vm'),
@@ -39,12 +39,20 @@ function Mistakes(filename) {
 Mistakes.prototype.listen = function() {
   this.server.listen.apply(this.server, arguments);
 
+  // shoe manages our connection to the browser and lets
+  // us send messages back and forth with streams. under the hood
+  // it's all websockets on modern browsers.
   var sock = shoe(function(stream) {
+    // if you've started this up with a file argument,
+    // send that file to the browser
     if (this.defaultValue) {
       stream.write(JSON.stringify({ defaultValue: this.defaultValue }));
     }
+    // .on('data' is called when someone types some new code in the browser
     stream.on('data', function(d) {
       var abort = false;
+      // sandbox is on object of all the methods the code will have when
+      // it runs inside of our temporary vm
       var sandbox = {
         INSTRUMENT: (function() {
           var DATA = [];
@@ -71,9 +79,14 @@ Mistakes.prototype.listen = function() {
       }
       var transformed = instrument(d);
       try {
+        // this could be smarter - the next version of node will support
+        // a timeout for this context. for now, we'll just settle.
         vm.runInNewContext(transformed.result, sandbox, 'tmp.js');
       } catch(e) {
+        // the vm will throw an error if the code has a syntax error
+        // or something like that.
         stream.write(JSON.stringify({ error: e.message }));
+
         // make sure we don't send messages after this
         // that would hide the error.
         abort = true;
@@ -86,17 +99,33 @@ Mistakes.prototype.listen = function() {
   this.sock = sock;
 };
 
+// horrible errors within the vm can bubble up in unexpected ways.
+// we keep that from crashing the process by basically ignoring them
+// here.
 process.on('uncaughtException', function (err) {
   console.log('Caught exception: ' + err);
 });
 
+// Given a string of source code, look for our magic kind of comment
+// and transform those comments into actual code that records the value
+// of variables at a point in time.
+//
+// The process is really similar to code instrumentation used for
+// coverage testing - for instance, how istanbul and bunker go about
+// their business. But this is only for when the user explicitly
+// wants instrumentation, and it uses dumb string operations instead
+// of a real parser or code rewriter.
 function instrument(str) {
   var hasInstrument = false;
   var result = str.split('\n')
+    // if a line has a magic comment, replace the comment with
+    // instrumentation code
     .map(function(line, i) {
       if (line.match(/\/\/=/)) {
         return line.replace(/(\/\/=)(.*)$/, function(match, _, name, offset, string) {
           hasInstrument = true;
+          // the function INSTRUMENT is implement above as a part of
+          // the context given to vm.runInNewContext
           return ';INSTRUMENT.log(' +
               '"' + name + '"' +
               ',' +
@@ -105,6 +134,10 @@ function instrument(str) {
       } else {
         return line;
       }
+      // finally, hit it with a final update call. the way that we're working
+      // here is async - _UPDATE() can be called later on by anything that
+      // calls INSTRUMENT(), but we call it here just in case all code
+      // is sync.
     }).join('\n') + '\n;_UPDATE();';
   return {
     hasInstrument: hasInstrument,
