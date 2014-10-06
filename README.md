@@ -1,6 +1,6 @@
-# rpl
+![rpl](logo.png)
 
-REPL from the future and past.
+A REPL for the future and past.
 
 ## install
 
