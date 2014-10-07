@@ -13,6 +13,22 @@ body {
   right:0;
   color:#fff;
   z-index:9999;
+  width:200px;
+}
+
+.status {
+  padding:5px;
+  position:absolute;
+  font-size:75%;
+  top:0;
+  right:200px;
+  color:#fff;
+  z-index:9999;
+  padding:0 10px;
+}
+
+.quiet {
+  color: #eee;
 }
 
 .editor {
