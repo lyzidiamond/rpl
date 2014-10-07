@@ -4,6 +4,8 @@ var path = require('path'),
   http = require('http'),
   vm = require('vm'),
   st = require('st'),
+  browserify = require('browserify'),
+  stringify = require('json-stringify-safe'),
   fs = require('fs'),
   argv = require('minimist')(process.argv.slice(2)),
   chromeApp = require('chrome-app'),
@@ -27,6 +29,7 @@ function Mistakes(filename) {
     url: '/',
     cache: false,
     index: 'index.html',
+    passthrough: true,
     dot: true
   });
 
@@ -35,7 +38,13 @@ function Mistakes(filename) {
   }
 
   this.server = http.createServer(function(req, res) {
-    this.mistakesStatic(req, res);
+    if (req.url === '/bundle.js') {
+      var b = browserify();
+      b.add(__dirname + '/static/index.js');
+      b.bundle().pipe(res);
+    } else {
+      this.mistakesStatic(req, res);
+    }
   }.bind(this));
 }
 
@@ -70,12 +79,11 @@ Mistakes.prototype.listen = function() {
               DATA[name + ':' + number] = {
                 name: name,
                 line: number,
-                stringified: JSON.stringify(val)
+                stringified: stringify(val)
               };
               TODO[name + ':' + number] = true;
               for (var k in TODO) {
                 if (!TODO[k]) {
-                  console.log('waiting for more', k);
                   return;
                 }
               }
@@ -94,7 +102,6 @@ Mistakes.prototype.listen = function() {
       };
 
       function _UPDATE(tick) {
-        console.log(tick, thisTick);
         if (tick !== thisTick) return;
         process.nextTick(function() {
           if (!abort) stream.write(JSON.stringify(sandbox.INSTRUMENT.DATA));
