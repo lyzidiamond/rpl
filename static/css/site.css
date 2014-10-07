@@ -25,21 +25,22 @@ body {
 
 .data {
   background:#000;
-  border-bottom:1px solid #555;
-  border-top:1px solid #555;
+  border-top:1px solid #222;
+  border-bottom:2px solid #222;
   color:#fff;
   position:relative;
-  padding:12px 5px 5px 5px;
+  padding:5px 5px 5px 5px;
   margin:5px 0;
 }
 
 .data-name {
   position:absolute;
-  font-size:12px;
+  padding:0 10px;
   top:0;
   right:0;
-  color:yellow;
-  background:black;
+  line-height:30px;
+  color:white;
+  background:#222;
   z-index:9999;
 }
 
@@ -51,4 +52,8 @@ body {
   left:0;
   overflow:auto;
   height:auto;
+}
+
+.CodeMirror-linenumbers {
+  background:#000;
 }

@@ -29,22 +29,33 @@ function makeWidget(name, x) {
   return msg;
 }
 
-function read(str) {
-  var d = JSON.parse(str);
+function clearData() {
   widgets.forEach(function(w) {
     editor.removeLineWidget(w);
   });
   widgets = [];
-  error.style.display = 'none';
-  console.log(d);
+}
+
+var delayedClear;
+
+function read(str) {
+  var d = JSON.parse(str);
+
+  if (d.defaultValue) {
+    editor.setValue(d.defaultValue);
+    return;
+  }
+
+  clearTimeout(delayedClear);
+
   if (d.error) {
     error.style.display = 'block';
     error.innerHTML = d.error;
-  } else if (d.defaultValue) {
-    editor.setValue(d.defaultValue);
+    delayedClear = setTimeout(clearData, 1000);
   } else {
+    error.style.display = 'none';
+    clearData();
     widgets = values(d).map(function(val) {
-      console.log(arguments);
       return editor.addLineWidget(
         val.line,
         makeWidget(val.name, val.stringified), {
@@ -69,6 +80,7 @@ var editor = CodeMirror.fromTextArea(document.getElementById('editor'), {
 editor.setOption('theme', 'monokai');
 
 editor.on('change', function() {
+  clearTimeout(delayedClear);
   stream.write(editor.getValue());
 });
 
