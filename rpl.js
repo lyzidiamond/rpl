@@ -7,6 +7,7 @@ var path = require('path'),
   fs = require('fs'),
   argv = require('minimist')(process.argv.slice(2)),
   chromeApp = require('chrome-app'),
+  opener = require('opener'),
   shoe = require('shoe');
 
 // from https://github.com/joyent/node/blob/master/lib/repl.js
@@ -72,7 +73,8 @@ Mistakes.prototype.listen = function() {
         })(),
         _UPDATE: _UPDATE,
         require: require,
-        module: module
+        module: module,
+        console: console
       };
       function _UPDATE() {
         process.nextTick(function() {
@@ -158,5 +160,8 @@ takes.listen(null, function(err, res) {
   console.log('rpl running at %s', address);
   if (argv.b) {
     chromeApp(address);
+  }
+  if (argv.o) {
+    opener(address);
   }
 });

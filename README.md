@@ -25,12 +25,14 @@ require('fs').readFile('/etc/hosts', 'utf8', function(err, res) {
 ## the binary
 
 ```
-rpl [-b] [FILENAME]
-      ^   ^
+rpl [-b] [-o] [FILENAME]
+      ^   ^    ^
+      |   |    |
+      |   |    | prefill the cli with the contents of a file
       |   |
-      |   | prefill the cli with the contents of a file
+      |   | -b open your browser to the page
       |
-      | -b open a chrome browser window with the app
+      | -b open a chrome app standalone window
 ```
 
 ## getting started

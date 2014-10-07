@@ -24,7 +24,8 @@
     "through": "~2.3.6",
     "insert-css": "~0.2.0",
     "minimist": "~1.1.0",
-    "chrome-app": "0.0.0"
+    "chrome-app": "0.0.0",
+    "opener": "~1.4.0"
   },
   "devDependencies": {
     "watchify": "~1.0.2",
