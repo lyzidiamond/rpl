@@ -5,8 +5,8 @@ require('./js/javascript')(CodeMirror);
 var fs = require('fs');
 var insertCss = require('insert-css');
 
-insertCss(fs.readFileSync(__dirname + '/node_modules/codemirror/theme/monokai.css'));
-insertCss(fs.readFileSync(__dirname + '/node_modules/codemirror/lib/codemirror.css'));
+insertCss(fs.readFileSync(__dirname + '/css/monokai.css', 'utf8'));
+insertCss(fs.readFileSync(__dirname + '/css/codemirror.css', 'utf8'));
 insertCss(fs.readFileSync(__dirname + '/css/site.css', 'utf8'));
 
 var stream = shoe('/eval');
