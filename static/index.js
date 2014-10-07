@@ -3,6 +3,7 @@ var shoe = require('shoe');
 var CodeMirror = require('codemirror');
 require('./js/javascript')(CodeMirror);
 var fs = require('fs');
+var _ = require('lodash');
 var insertCss = require('insert-css');
 
 insertCss(fs.readFileSync('./node_modules/codemirror/theme/monokai.css'));
@@ -45,7 +46,8 @@ function read(str) {
   } else if (d.defaultValue) {
     editor.setValue(d.defaultValue);
   } else {
-    widgets = d.map(function(val) {
+    widgets = _.values(d).map(function(val) {
+      console.log(arguments);
       return editor.addLineWidget(
         val.line,
         makeWidget(val.name, val.stringified), {

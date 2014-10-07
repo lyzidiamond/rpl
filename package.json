@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "watch": "watchify static/index.js -o static/bundle.js",
-    "make": "browserify static/index.js > static/bundle.js"
+    "make": "browserify static/index.js > static/bundle.js",
+    "start": "node rpl.js"
   },
   "bin": {
     "rpl": "rpl.js"
@@ -25,7 +26,8 @@
     "insert-css": "~0.2.0",
     "minimist": "~1.1.0",
     "chrome-app": "0.0.0",
-    "opener": "~1.4.0"
+    "opener": "~1.4.0",
+    "lodash": "~2.4.1"
   },
   "devDependencies": {
     "watchify": "~1.0.2",

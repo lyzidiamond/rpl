@@ -46,42 +46,61 @@ Mistakes.prototype.listen = function() {
   // us send messages back and forth with streams. under the hood
   // it's all websockets on modern browsers.
   var sock = shoe(function(stream) {
+
     // if you've started this up with a file argument,
     // send that file to the browser
     if (this.defaultValue) {
       stream.write(JSON.stringify({ defaultValue: this.defaultValue }));
     }
+
     // .on('data' is called when someone types some new code in the browser
     stream.on('data', function(d) {
       var abort = false;
+      var thisTick = Date.now();
+      var transformed = instrument(d, thisTick);
+
       // sandbox is on object of all the methods the code will have when
       // it runs inside of our temporary vm
       var sandbox = {
-        INSTRUMENT: (function() {
-          var DATA = [];
+        INSTRUMENT: (function(thisTick) {
+          var DATA = {};
+          var TODO = transformed.TODO;
           return {
             log: function(name, number, val) {
-              DATA.push({
+              DATA[name + ':' + number] = {
                 name: name,
                 line: number,
                 stringified: JSON.stringify(val)
-              });
-              _UPDATE();
+              };
+              TODO[name + ':' + number] = true;
+              for (var k in TODO) {
+                if (!TODO[k]) {
+                  console.log('waiting for more', k);
+                  return;
+                }
+              }
+              _UPDATE(thisTick);
             },
+            TODO: TODO,
             DATA: DATA
           };
-        })(),
+        })(thisTick),
         _UPDATE: _UPDATE,
         require: require,
         module: module,
-        console: console
+        console: console,
+        setTimeout: setTimeout,
+        setInterval: setInterval
       };
-      function _UPDATE() {
+
+      function _UPDATE(tick) {
+        console.log(tick, thisTick);
+        if (tick !== thisTick) return;
         process.nextTick(function() {
           if (!abort) stream.write(JSON.stringify(sandbox.INSTRUMENT.DATA));
         });
       }
-      var transformed = instrument(d);
+
       try {
         // this could be smarter - the next version of node will support
         // a timeout for this context. for now, we'll just settle.
@@ -119,15 +138,17 @@ process.on('uncaughtException', function (err) {
 // their business. But this is only for when the user explicitly
 // wants instrumentation, and it uses dumb string operations instead
 // of a real parser or code rewriter.
-function instrument(str) {
+function instrument(str, tick) {
   var hasInstrument = false;
+  var TODO = {};
   var result = str.split('\n')
     // if a line has a magic comment, replace the comment with
     // instrumentation code
     .map(function(line, i) {
       if (line.match(/\/\/=/)) {
-        return line.replace(/(\/\/=)(.*)$/, function(match, _, name, offset, string) {
+        return line.replace(/(\/\/=)(.*)$/, function(match, _, name, offset) {
           hasInstrument = true;
+          TODO[name + ':' + i] = false;
           // the function INSTRUMENT is implement above as a part of
           // the context given to vm.runInNewContext
           return ';INSTRUMENT.log(' +
@@ -142,10 +163,11 @@ function instrument(str) {
       // here is async - _UPDATE() can be called later on by anything that
       // calls INSTRUMENT(), but we call it here just in case all code
       // is sync.
-    }).join('\n') + '\n;_UPDATE();';
+    }).join('\n') + '\n;_UPDATE(' + tick + ');';
   return {
     hasInstrument: hasInstrument,
-    result: result
+    result: result,
+    TODO: TODO
   };
 }
 
