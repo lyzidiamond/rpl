@@ -12,20 +12,25 @@ insertCss(fs.readFileSync(__dirname + '/css/site.css', 'utf8'));
 var stream = shoe('/eval');
 var error = document.getElementById('error');
 var evalIndicator = document.getElementById('eval-indicator');
+var indentIndicator = document.getElementById('indent-indicator');
 var widgets = [];
 var evalPause = false;
+var globalIndent = false;
 var delayedClear;
 
 function makeWidget(name, x) {
-  var indent = false;
+  var indent = globalIndent;
   var msg = document.createElement('div');
   msg.className = 'data';
   var pre = msg.appendChild(document.createElement('pre'));
-  pre.appendChild(document.createTextNode(x));
   pre.onclick = function() {
     indent = !indent;
-    pre.innerHTML = JSON.stringify(JSON.parse(x), null, indent ? 2 : null);
+    fillPre();
   };
+  function fillPre() {
+    pre.innerHTML = JSON.stringify(JSON.parse(x), null, indent ? 2 : null);
+  }
+  fillPre();
   var n = msg.appendChild(document.createElement('div'));
   n.className = 'data-name';
   n.innerHTML = name;
@@ -79,6 +84,18 @@ function togglePauseEval() {
   return false;
 }
 
+function toggleGlobalIndent() {
+  globalIndent = !globalIndent;
+  if (globalIndent) {
+    indentIndicator.innerHTML = 'indent';
+    indentIndicator.className = '';
+  } else {
+    indentIndicator.innerHTML = 'collapse';
+    indentIndicator.className = 'quiet';
+  }
+  return false;
+}
+
 function save() {
   stream.write(JSON.stringify({
     value: editor.getValue(),
@@ -101,6 +118,8 @@ var editor = CodeMirror.fromTextArea(document.getElementById('editor'), {
   extraKeys: {
     'Ctrl-E': togglePauseEval,
     'Cmd-E': togglePauseEval,
+    'Ctrl-R': toggleGlobalIndent,
+    'Cmd-R': toggleGlobalIndent,
     'Ctrl-S': save,
     'Cmd-S': save
   }
