@@ -79,6 +79,14 @@ function togglePauseEval() {
   return false;
 }
 
+function save() {
+  stream.write(JSON.stringify({
+    value: editor.getValue(),
+    command: 'save'
+  }));
+  return false;
+}
+
 evalIndicator.onclick = togglePauseEval;
 
 function values(d) {
@@ -92,7 +100,9 @@ var editor = CodeMirror.fromTextArea(document.getElementById('editor'), {
   autofocus: true,
   extraKeys: {
     'Ctrl-E': togglePauseEval,
-    'Cmd-E': togglePauseEval
+    'Cmd-E': togglePauseEval,
+    'Ctrl-S': save,
+    'Cmd-S': save
   }
 });
 
@@ -101,7 +111,7 @@ editor.setOption('theme', 'monokai');
 editor.on('change', function() {
   if (evalPause) return;
   clearTimeout(delayedClear);
-  stream.write(editor.getValue());
+  stream.write(JSON.stringify({ value: editor.getValue() }));
 });
 
 stream.pipe(through(read));

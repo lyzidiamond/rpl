@@ -33,8 +33,14 @@ function Mistakes(filename) {
     dot: true
   });
 
-  if (filename) {
-    this.defaultValue = fs.readFileSync(filename, 'utf8');
+  this.filename = filename;
+
+  if (this.filename) {
+    if (!fs.existsSync(this.filename)) {
+      console.log('Creating new file %s', this.filename);
+    } else {
+      this.defaultValue = fs.readFileSync(this.filename, 'utf8');
+    }
   }
 
   this.server = http.createServer(function(req, res) {
@@ -63,10 +69,17 @@ Mistakes.prototype.listen = function() {
     }
 
     // .on('data' is called when someone types some new code in the browser
-    stream.on('data', function(d) {
+    stream.on('data', function(json) {
+      var value = JSON.parse(json);
+
+      if (value.command) {
+        fs.writeFileSync(this.filename, value.value);
+        return;
+      }
+
       var abort = false;
       var thisTick = Date.now();
-      var transformed = instrument(d, thisTick);
+      var transformed = instrument(value.value, thisTick);
 
       // sandbox is on object of all the methods the code will have when
       // it runs inside of our temporary vm
@@ -121,7 +134,7 @@ Mistakes.prototype.listen = function() {
         // that would hide the error.
         abort = true;
       }
-    });
+    }.bind(this));
   }.bind(this));
 
   sock.install(this.server, '/eval');
