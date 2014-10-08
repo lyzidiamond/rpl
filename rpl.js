@@ -201,7 +201,7 @@ takes.listen(null, function(err, res) {
       takes.server.address().port;
   console.log('rpl running at %s', address);
   if (argv.b) {
-    chromeApp(address);
+    chromeApp(address, 'rpl');
   }
   if (argv.o) {
     opener(address);
