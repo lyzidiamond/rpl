@@ -75,11 +75,9 @@ function read(str) {
 function togglePauseEval() {
   evalPause = !evalPause;
   if (evalPause) {
-    evalIndicator.innerHTML = 'paused';
-    evalIndicator.className = '';
+    evalIndicator.className = 'off';
   } else {
-    evalIndicator.innerHTML = 'live';
-    evalIndicator.className = 'quiet';
+    evalIndicator.className = '';
   }
   return false;
 }
@@ -87,11 +85,9 @@ function togglePauseEval() {
 function toggleGlobalIndent() {
   globalIndent = !globalIndent;
   if (globalIndent) {
-    indentIndicator.innerHTML = 'indent';
     indentIndicator.className = '';
   } else {
-    indentIndicator.innerHTML = 'collapse';
-    indentIndicator.className = 'quiet';
+    indentIndicator.className = 'off';
   }
   return false;
 }
@@ -105,6 +101,7 @@ function save() {
 }
 
 evalIndicator.onclick = togglePauseEval;
+indentIndicator.onclick = toggleGlobalIndent;
 
 function values(d) {
   return Object.keys(d).map(function(k) { return d[k]; });
@@ -116,10 +113,6 @@ var editor = CodeMirror.fromTextArea(document.getElementById('editor'), {
   lineNumbers: true,
   autofocus: true,
   extraKeys: {
-    'Ctrl-E': togglePauseEval,
-    'Cmd-E': togglePauseEval,
-    'Ctrl-R': toggleGlobalIndent,
-    'Cmd-R': toggleGlobalIndent,
     'Ctrl-S': save,
     'Cmd-S': save
   }

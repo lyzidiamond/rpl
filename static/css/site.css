@@ -5,7 +5,7 @@ body {
 }
 
 #error {
-  padding:5px;
+  padding:2px;
   background:#d94a38;
   display:none;
   position:absolute;
@@ -13,30 +13,35 @@ body {
   right:0;
   color:#fff;
   z-index:9999;
-  width:200px;
 }
 
 .status {
-  padding:5px;
-  position:absolute;
+  position:fixed;
   font-size:75%;
-  top:0;
-  right:200px;
-  color:#fff;
+  bottom:5px;
+  right:5px;
   z-index:9999;
-  padding:0 10px;
 }
 
-.quiet {
-  color: #eee;
+.status div {
+  display:inline-block;
+  padding:4px 8px;
+  color:#fff;
+  background:rgba(0, 0, 0, 0.5);
+}
+
+.status div.off {
+  color: rgba(255, 255, 255, 0.6);
+  background:rgba(0, 0, 0, 0.9);
 }
 
 .editor {
-  position:absolute;
+  position:fixed;
   top:0;
   left:0;
-  right:0%;
+  right:0;
   bottom:0;
+  color:#fff;
 }
 
 .data {
