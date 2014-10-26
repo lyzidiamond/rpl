@@ -4,7 +4,7 @@
   "description": "repl",
   "main": "index.js",
   "scripts": {
-    "start": "node rpl.js"
+    "start": "node rpl.js & watchify static/index.js -o static/bundle.js"
   },
   "bin": {
     "rpl": "rpl.js"
@@ -17,16 +17,18 @@
   "author": "Tom MacWright",
   "license": "ISC",
   "dependencies": {
-    "codemirror": "https://github.com/tmcw/CodeMirror/archive/module-export.tar.gz",
     "shoe": "0.0.15",
     "st": "~0.5.2",
-    "through": "~2.3.6",
-    "insert-css": "~0.2.0",
     "minimist": "~1.1.0",
     "chrome-app": "0.1.0",
     "opener": "~1.4.0",
-    "browserify": "~6.0.2",
-    "brfs": "~1.2.0",
     "json-stringify-safe": "~5.0.0"
+  },
+  "devDependencies": {
+    "brfs": "~1.2.0",
+    "codemirror": "https://github.com/tmcw/CodeMirror/archive/module-export.tar.gz",
+    "through": "~2.3.6",
+    "insert-css": "~0.2.0",
+    "browserify": "~6.0.2"
   }
 }

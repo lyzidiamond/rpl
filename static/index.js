@@ -1,18 +1,22 @@
-var through = require('through');
-var shoe = require('shoe');
-var CodeMirror = require('codemirror');
-require('./js/javascript')(CodeMirror);
+// preprocessing
 var fs = require('fs');
 var insertCss = require('insert-css');
-
-insertCss(fs.readFileSync(__dirname + '/css/monokai.css', 'utf8'));
+insertCss(fs.readFileSync(__dirname + '/css/vibrant-ink.css', 'utf8'));
 insertCss(fs.readFileSync(__dirname + '/css/codemirror.css', 'utf8'));
 insertCss(fs.readFileSync(__dirname + '/css/site.css', 'utf8'));
 
+var through = require('through');
+var shoe = require('shoe');
+
+var CodeMirror = require('codemirror');
+require('./js/javascript')(CodeMirror);
+
 var stream = shoe('/eval');
+
 var error = document.getElementById('error');
 var evalIndicator = document.getElementById('eval-indicator');
 var indentIndicator = document.getElementById('indent-indicator');
+
 var widgets = [];
 var evalPause = false;
 var globalIndent = false;
@@ -118,7 +122,7 @@ var editor = CodeMirror.fromTextArea(document.getElementById('editor'), {
   }
 });
 
-editor.setOption('theme', 'monokai');
+editor.setOption('theme', 'vibrant-ink');
 
 editor.on('change', function() {
   if (evalPause) return;
