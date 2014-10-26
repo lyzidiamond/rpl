@@ -14,13 +14,40 @@ require('./js/javascript')(CodeMirror);
 var stream = shoe('/eval');
 
 var error = document.getElementById('error');
-var evalIndicator = document.getElementById('eval-indicator');
-var indentIndicator = document.getElementById('indent-indicator');
 
-var widgets = [];
-var evalPause = false;
-var globalIndent = false;
-var delayedClear;
+var evalPause = false,
+  globalIndent = false,
+  widgets = [],
+  delayedClear = null;
+
+document.getElementById('evaluate').onchange = function(e) {
+  evalPause = !!e.target.checked;
+};
+
+document.getElementById('indent').onchange = function(e) {
+  globalIndent = !!e.target.checked;
+};
+
+var editor = CodeMirror.fromTextArea(document.getElementById('editor'), {
+  indentUnit: 2,
+  mode: 'text/javascript',
+  lineNumbers: true,
+  autofocus: true,
+  extraKeys: {
+    'Ctrl-S': save,
+    'Cmd-S': save
+  }
+});
+
+editor.setOption('theme', 'vibrant-ink');
+
+editor.on('change', function() {
+  if (evalPause) return;
+  clearTimeout(delayedClear);
+  stream.write(JSON.stringify({ value: editor.getValue() }));
+});
+
+stream.pipe(through(read));
 
 function makeWidget(name, x) {
   var indent = globalIndent;
@@ -65,35 +92,17 @@ function read(str) {
   } else {
     error.style.display = 'none';
     clearData();
-    widgets = values(d).map(function(val) {
-      return editor.addLineWidget(
-        val.line,
-        makeWidget(val.name, val.stringified), {
-          coverGutter: false,
-          noHScroll: true
-        });
+    widgets = values(d).map(addWidget);
+  }
+}
+
+function addWidget(val) {
+  return editor.addLineWidget(
+    val.line,
+    makeWidget(val.name, val.stringified), {
+      coverGutter: false,
+      noHScroll: true
     });
-  }
-}
-
-function togglePauseEval() {
-  evalPause = !evalPause;
-  if (evalPause) {
-    evalIndicator.className = 'off';
-  } else {
-    evalIndicator.className = '';
-  }
-  return false;
-}
-
-function toggleGlobalIndent() {
-  globalIndent = !globalIndent;
-  if (globalIndent) {
-    indentIndicator.className = '';
-  } else {
-    indentIndicator.className = 'off';
-  }
-  return false;
 }
 
 function save() {
@@ -104,30 +113,6 @@ function save() {
   return false;
 }
 
-evalIndicator.onclick = togglePauseEval;
-indentIndicator.onclick = toggleGlobalIndent;
-
 function values(d) {
   return Object.keys(d).map(function(k) { return d[k]; });
 }
-
-var editor = CodeMirror.fromTextArea(document.getElementById('editor'), {
-  indentUnit: 2,
-  mode: 'text/javascript',
-  lineNumbers: true,
-  autofocus: true,
-  extraKeys: {
-    'Ctrl-S': save,
-    'Cmd-S': save
-  }
-});
-
-editor.setOption('theme', 'vibrant-ink');
-
-editor.on('change', function() {
-  if (evalPause) return;
-  clearTimeout(delayedClear);
-  stream.write(JSON.stringify({ value: editor.getValue() }));
-});
-
-stream.pipe(through(read));

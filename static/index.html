@@ -1,10 +1,14 @@
 <html>
-  <head><title>rpl</title></head>
+  <head>
+  <title>rpl</title>
+  </head>
   <body>
-    <div id='error'></div>
-    <div class='status'>
-      <div id='eval-indicator'>eval</div>
-      <div class='off' id='indent-indicator'>indent</div>
+    <div class='control-line'>
+      <div id='error'></div>
+      <input checked=checked type='checkbox' id='evaluate' />
+      <label for='evaluate'>evaluate</label>
+      <input type='checkbox' id='indent' />
+      <label for='indent'>indent</label>
     </div>
     <textarea id='editor'></textarea>
     <script src='bundle.js'></script>
