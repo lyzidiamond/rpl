@@ -23,7 +23,7 @@ function writeHead(res, contentType) {
   });
 }
 
-function Mistakes(filename) {
+function RPL(filename) {
   this.mistakesStatic = st({
     path: __dirname + '/static',
     url: '/',
@@ -54,13 +54,11 @@ function Mistakes(filename) {
   }.bind(this));
 }
 
-Mistakes.prototype.listen = function() {
+RPL.prototype.listen = function() {
   this.server.listen.apply(this.server, arguments);
 
-  // shoe manages our connection to the browser and lets
-  // us send messages back and forth with streams. under the hood
-  // it's all websockets on modern browsers.
-  var sock = shoe(function(stream) {
+
+  var onstream = function(stream) {
 
     // if you've started this up with a file argument,
     // send that file to the browser
@@ -68,8 +66,7 @@ Mistakes.prototype.listen = function() {
       stream.write(JSON.stringify({ defaultValue: this.defaultValue }));
     }
 
-    // .on('data' is called when someone types some new code in the browser
-    stream.on('data', function(json) {
+    var ondata = function(json) {
       var value = JSON.parse(json);
 
       if (value.command) {
@@ -116,9 +113,11 @@ Mistakes.prototype.listen = function() {
 
       function _UPDATE(tick) {
         if (tick !== thisTick) return;
-        process.nextTick(function() {
-          if (!abort) stream.write(JSON.stringify(sandbox.INSTRUMENT.DATA));
-        });
+        process.nextTick(sendData);
+      }
+
+      function sendData() {
+        if (!abort) stream.write(JSON.stringify(sandbox.INSTRUMENT.DATA));
       }
 
       try {
@@ -134,8 +133,17 @@ Mistakes.prototype.listen = function() {
         // that would hide the error.
         abort = true;
       }
-    }.bind(this));
-  }.bind(this));
+    }.bind(this);
+
+    // .on('data' is called when someone types some new code in the browser
+    stream.on('data', ondata);
+
+  }.bind(this);
+
+  // shoe manages our connection to the browser and lets
+  // us send messages back and forth with streams. under the hood
+  // it's all websockets on modern browsers.
+  var sock = shoe(onstream);
 
   sock.install(this.server, '/eval');
 
@@ -159,43 +167,48 @@ process.on('uncaughtException', function (err) {
 // wants instrumentation, and it uses dumb string operations instead
 // of a real parser or code rewriter.
 function instrument(str, tick) {
-  var hasInstrument = false;
   var TODO = {};
   var result = str.split('\n')
     // if a line has a magic comment, replace the comment with
     // instrumentation code
-    .map(function(line, i) {
-      if (line.match(/\/\/=/)) {
-        return line.replace(/(\/\/=)(.*)$/, function(match, _, name, offset) {
-          hasInstrument = true;
-          TODO[name + ':' + i] = false;
-          // the function INSTRUMENT is implement above as a part of
-          // the context given to vm.runInNewContext
-          return ';INSTRUMENT.log(' +
-              '"' + name + '"' +
-              ',' +
-              i + ',' + name + ');';
-        });
-      } else {
-        return line;
-      }
-      // finally, hit it with a final update call. the way that we're working
-      // here is async - _UPDATE() can be called later on by anything that
-      // calls INSTRUMENT(), but we call it here just in case all code
-      // is sync.
-    }).join('\n') + '\n;_UPDATE(' + tick + ');';
+    .map(rewriteLine)
+    // finally, hit it with a final update call. the way that we're working
+    // here is async - _UPDATE() can be called later on by anything that
+    // calls INSTRUMENT(), but we call it here just in case all code
+    // is sync.
+    .join('\n') + '\n;_UPDATE(' + tick + ');';
+
+  function rewriteLine(line, i) {
+    if (line.match(/\/\/=/)) {
+      return line.replace(/(\/\/=)(.*)$/, rewriteComment);
+    } else {
+      return line;
+    }
+  }
+
+  function rewriteComment(match, _, name, offset) {
+    TODO[name + ':' + i] = false;
+    // the function INSTRUMENT is implement above as a part of
+    // the context given to vm.runInNewContext
+    return ';INSTRUMENT.log(' +
+        '"' + name + '"' +
+        ',' +
+        i + ',' + name + ');';
+  }
+
   return {
-    hasInstrument: hasInstrument,
     result: result,
     TODO: TODO
   };
 }
 
-module.exports = Mistakes;
+module.exports = RPL;
 
-var takes = new Mistakes(argv._[0]);
+var rpl = new RPL(argv._[0]);
 
-takes.listen(null, function(err, res) {
+rpl.listen(null, onlisten);
+
+function onlisten(err, res) {
   var address = 'http://' +
       takes.server.address().address + ':' +
       takes.server.address().port;
@@ -206,4 +219,4 @@ takes.listen(null, function(err, res) {
   if (argv.o) {
     opener(address);
   }
-});
+}
