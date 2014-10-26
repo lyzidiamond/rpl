@@ -72,11 +72,14 @@ RPL.prototype.listen = function() {
           var TODO = transformed.TODO;
           return {
             log: function(name, number, val) {
-              DATA[name + ':' + number] = {
+              if (DATA[name + ':' + number] === undefined) {
+                DATA[name + ':' + number] = [];
+              }
+              DATA[name + ':' + number].unshift({
                 name: name,
                 line: number,
                 stringified: stringify(val)
-              };
+              });
               TODO[name + ':' + number] = true;
               for (var k in TODO) {
                 if (!TODO[k]) {

@@ -13347,13 +13347,15 @@ function isNullOrUndefined(arg) {
   return  arg == null;
 }
 
-},{"punycode":"/Users/tmcw/src/rpl/node_modules/watchify/node_modules/browserify/node_modules/punycode/punycode.js","querystring":"/Users/tmcw/src/rpl/node_modules/watchify/node_modules/browserify/node_modules/querystring-es3/index.js"}],"/Users/tmcw/src/rpl/static/index.js":[function(require,module,exports){
-// preprocessing
+},{"punycode":"/Users/tmcw/src/rpl/node_modules/watchify/node_modules/browserify/node_modules/punycode/punycode.js","querystring":"/Users/tmcw/src/rpl/node_modules/watchify/node_modules/browserify/node_modules/querystring-es3/index.js"}],"/Users/tmcw/src/rpl/static/css/css.js":[function(require,module,exports){
 
 var insertCss = require('insert-css');
 insertCss("/* Taken from the popular Visual Studio Vibrant Ink Schema */\n\n.cm-s-vibrant-ink.CodeMirror { background: black; color: white; }\n.cm-s-vibrant-ink .CodeMirror-selected { background: #35493c !important; }\n\n.cm-s-vibrant-ink .CodeMirror-gutters { background: #002240; border-right: 1px solid #aaa; }\n.cm-s-vibrant-ink .CodeMirror-linenumber { color: #d0d0d0; }\n.cm-s-vibrant-ink .CodeMirror-cursor { border-left: 1px solid white !important; }\n\n.cm-s-vibrant-ink .cm-keyword {  color: #CC7832; }\n.cm-s-vibrant-ink .cm-atom { color: #FC0; }\n.cm-s-vibrant-ink .cm-number { color:  #FFEE98; }\n.cm-s-vibrant-ink .cm-def { color: #8DA6CE; }\n.cm-s-vibrant-ink span.cm-variable-2, .cm-s-cobalt span.cm-tag { color: #FFC66D }\n.cm-s-vibrant-ink span.cm-variable-3, .cm-s-cobalt span.cm-def { color: #FFC66D }\n.cm-s-vibrant-ink .cm-operator { color: #888; }\n.cm-s-vibrant-ink .cm-comment { color: gray; font-weight: bold; }\n.cm-s-vibrant-ink .cm-string { color:  #A5C25C }\n.cm-s-vibrant-ink .cm-string-2 { color: red }\n.cm-s-vibrant-ink .cm-meta { color: #D8FA3C; }\n.cm-s-vibrant-ink .cm-error { border-bottom: 1px solid red; }\n.cm-s-vibrant-ink .cm-builtin { color: #8DA6CE; }\n.cm-s-vibrant-ink .cm-tag { color: #8DA6CE; }\n.cm-s-vibrant-ink .cm-attribute { color: #8DA6CE; }\n.cm-s-vibrant-ink .cm-header { color: #FF6400; }\n.cm-s-vibrant-ink .cm-hr { color: #AEAEAE; }\n.cm-s-vibrant-ink .cm-link { color: blue; }\n");
 insertCss("/* BASICS */\n\n.CodeMirror {\n  /* Set height, width, borders, and global font properties here */\n  font-family: \"M+ 1mn\", monospace;\n  height: 300px;\n}\n.CodeMirror-scroll {\n  /* Set scrolling behaviour here */\n  overflow: auto;\n}\n\n/* PADDING */\n\n.CodeMirror-lines {\n  padding: 4px 0; /* Vertical padding around content */\n}\n.CodeMirror pre {\n  padding: 0 4px; /* Horizontal padding of content */\n}\n\n.CodeMirror-scrollbar-filler {\n  background-color: white; /* The little square between H and V scrollbars */\n}\n\n/* GUTTER */\n\n.CodeMirror-gutters {\n  border-right: 1px solid #ddd;\n  background-color: #f7f7f7;\n}\n.CodeMirror-linenumbers {}\n.CodeMirror-linenumber {\n  padding: 0 3px 0 5px;\n  min-width: 20px;\n  text-align: right;\n  color: #999;\n}\n\n/* CURSOR */\n\n.CodeMirror div.CodeMirror-cursor {\n  border-left: 1px solid black;\n}\n/* Shown when moving in bi-directional text */\n.CodeMirror div.CodeMirror-secondarycursor {\n  border-left: 1px solid silver;\n}\n.CodeMirror.cm-keymap-fat-cursor div.CodeMirror-cursor {\n  width: auto;\n  border: 0;\n  background: transparent;\n  background: rgba(0, 200, 0, .4);\n  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#6600c800, endColorstr=#4c00c800);\n}\n/* Kludge to turn off filter in ie9+, which also accepts rgba */\n.CodeMirror.cm-keymap-fat-cursor div.CodeMirror-cursor:not(#nonsense_id) {\n  filter: progid:DXImageTransform.Microsoft.gradient(enabled=false);\n}\n/* Can style cursor different in overwrite (non-insert) mode */\n.CodeMirror div.CodeMirror-cursor.CodeMirror-overwrite {}\n\n/* DEFAULT THEME */\n\n.cm-s-default .cm-keyword {color: #708;}\n.cm-s-default .cm-atom {color: #219;}\n.cm-s-default .cm-number {color: #164;}\n.cm-s-default .cm-def {color: #00f;}\n.cm-s-default .cm-variable {color: black;}\n.cm-s-default .cm-variable-2 {color: #05a;}\n.cm-s-default .cm-variable-3 {color: #085;}\n.cm-s-default .cm-property {color: black;}\n.cm-s-default .cm-operator {color: black;}\n.cm-s-default .cm-comment {color: #a50;}\n.cm-s-default .cm-string {color: #a11;}\n.cm-s-default .cm-string-2 {color: #f50;}\n.cm-s-default .cm-meta {color: #555;}\n.cm-s-default .cm-error {color: #f00;}\n.cm-s-default .cm-qualifier {color: #555;}\n.cm-s-default .cm-builtin {color: #30a;}\n.cm-s-default .cm-bracket {color: #997;}\n.cm-s-default .cm-tag {color: #170;}\n.cm-s-default .cm-attribute {color: #00c;}\n.cm-s-default .cm-header {color: blue;}\n.cm-s-default .cm-quote {color: #090;}\n.cm-s-default .cm-hr {color: #999;}\n.cm-s-default .cm-link {color: #00c;}\n\n.cm-negative {color: #d44;}\n.cm-positive {color: #292;}\n.cm-header, .cm-strong {font-weight: bold;}\n.cm-em {font-style: italic;}\n.cm-link {text-decoration: underline;}\n\n.cm-invalidchar {color: #f00;}\n\ndiv.CodeMirror span.CodeMirror-matchingbracket {color: #0f0;}\ndiv.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}\n\n/* STOP */\n\n/* The rest of this file contains styles related to the mechanics of\n   the editor. You probably shouldn't touch them. */\n\n.CodeMirror {\n  line-height: 1;\n  position: relative;\n  overflow: hidden;\n}\n\n.CodeMirror-scroll {\n  /* 30px is the magic margin used to hide the element's real scrollbars */\n  /* See overflow: hidden in .CodeMirror, and the paddings in .CodeMirror-sizer */\n  margin-bottom: -30px; margin-right: -30px;\n  padding-bottom: 30px; padding-right: 30px;\n  height: 100%;\n  outline: none; /* Prevent dragging from highlighting the element */\n  position: relative;\n}\n.CodeMirror-sizer {\n  position: relative;\n}\n\n/* The fake, visible scrollbars. Used to force redraw during scrolling\n   before actuall scrolling happens, thus preventing shaking and\n   flickering artifacts. */\n.CodeMirror-vscrollbar, .CodeMirror-hscrollbar, .CodeMirror-scrollbar-filler {\n  position: absolute;\n  z-index: 6;\n  display: none;\n}\n.CodeMirror-vscrollbar {\n  right: 0; top: 0;\n  overflow-x: hidden;\n  overflow-y: scroll;\n}\n.CodeMirror-hscrollbar {\n  bottom: 0; left: 0;\n  overflow-y: hidden;\n  overflow-x: scroll;\n}\n.CodeMirror-scrollbar-filler {\n  right: 0; bottom: 0;\n  z-index: 6;\n}\n\n.CodeMirror-gutters {\n  position: absolute; left: 0; top: 0;\n  height: 100%;\n  padding-bottom: 30px;\n  z-index: 3;\n}\n.CodeMirror-gutter {\n  height: 100%;\n  display: inline-block;\n  /* Hack to make IE7 behave */\n  *zoom:1;\n  *display:inline;\n}\n.CodeMirror-gutter-elt {\n  position: absolute;\n  cursor: default;\n  z-index: 4;\n}\n\n.CodeMirror-lines {\n  cursor: text;\n}\n.CodeMirror pre {\n  /* Reset some styles that the rest of the page might have set */\n  -moz-border-radius: 0; -webkit-border-radius: 0; -o-border-radius: 0; border-radius: 0;\n  border-width: 0;\n  background: transparent;\n  font-family: inherit;\n  font-size: inherit;\n  margin: 0;\n  white-space: pre;\n  word-wrap: normal;\n  line-height: inherit;\n  color: inherit;\n  z-index: 2;\n  position: relative;\n  overflow: visible;\n}\n.CodeMirror-wrap pre {\n  word-wrap: break-word;\n  white-space: pre-wrap;\n  word-break: normal;\n}\n.CodeMirror-linebackground {\n  position: absolute;\n  left: 0; right: 0; top: 0; bottom: 0;\n  z-index: 0;\n}\n\n.CodeMirror-linewidget {\n  position: relative;\n  z-index: 2;\n  overflow: auto;\n}\n\n.CodeMirror-widget {\n  display: inline-block;\n}\n\n.CodeMirror-wrap .CodeMirror-scroll {\n  overflow-x: hidden;\n}\n\n.CodeMirror-measure {\n  position: absolute;\n  width: 100%; height: 0px;\n  overflow: hidden;\n  visibility: hidden;\n}\n.CodeMirror-measure pre { position: static; }\n\n.CodeMirror div.CodeMirror-cursor {\n  position: absolute;\n  visibility: hidden;\n  border-right: none;\n  width: 0;\n}\n.CodeMirror-focused div.CodeMirror-cursor {\n  visibility: visible;\n}\n\n.CodeMirror-selected { background: #d9d9d9; }\n.CodeMirror-focused .CodeMirror-selected { background: #d7d4f0; }\n\n.cm-searching {\n  background: #ffa;\n  background: rgba(255, 255, 0, .4);\n}\n\n/* IE7 hack to prevent it from returning funny offsetTops on the spans */\n.CodeMirror span { *vertical-align: text-bottom; }\n\n@media print {\n  /* Hide the cursor when printing */\n  .CodeMirror div.CodeMirror-cursor {\n    visibility: hidden;\n  }\n}\n");
-insertCss("body {\n  margin:0;\n  padding:0;\n  font:13px/20px sans-serif;\n}\n\n.control-line {\n  background:#222;\n  color:#eee;\n  height:25px;\n  line-height:25px;\n  position:absolute;\n  top:0;\n  right:0;\n  left:0;\n}\n\n#error {\n  float:right;\n  padding-right:5px;\n  color:#eaa;\n}\n\n.editor {\n  position:fixed;\n  top:0;\n  left:0;\n  right:0;\n  bottom:0;\n  color:#fff;\n}\n\n.data {\n  background:#000;\n  border-top:1px solid #222;\n  border-bottom:2px solid #222;\n  color:#fff;\n  position:relative;\n  padding:5px 5px 5px 5px;\n  margin:5px 0;\n}\n\n.data-name {\n  position:absolute;\n  padding:0 10px;\n  top:0;\n  right:0;\n  line-height:25px;\n  color:white;\n  background:#222;\n  z-index:9999;\n}\n\n.CodeMirror {\n  position:absolute;\n  top:25px;\n  right:0;\n  bottom:0;\n  left:0;\n  overflow:auto;\n  height:auto;\n}\n\n.CodeMirror-linenumbers {\n  background:#000;\n}\n");
+insertCss("body {\n  margin:0;\n  padding:0;\n  font:13px/20px sans-serif;\n}\n\n.control-line {\n  background:#222;\n  color:#eee;\n  height:25px;\n  line-height:25px;\n  position:absolute;\n  top:0;\n  right:0;\n  left:0;\n}\n\n#error {\n  float:right;\n  padding-right:5px;\n  color:#eaa;\n}\n\n.editor {\n  position:fixed;\n  top:0;\n  left:0;\n  right:0;\n  bottom:0;\n  color:#fff;\n}\n\n.data {\n  background:#000;\n  border-top:1px solid #222;\n  border-bottom:2px solid #222;\n  color:#fff;\n  position:relative;\n  padding:5px 5px 5px 5px;\n  margin:5px 0;\n}\n\n.data-name {\n  position:absolute;\n  padding:0 10px;\n  top:0;\n  right:0;\n  line-height:25px;\n  color:white;\n  background:#222;\n  z-index:9999;\n}\n\n.CodeMirror {\n  position:absolute;\n  top:25px;\n  right:0;\n  bottom:0;\n  left:0;\n  overflow:auto;\n  height:auto;\n}\n\n.CodeMirror-linenumbers {\n  background:#000;\n}\n\n.time-control {\n  color:#aee;\n  margin-left:10px;\n}\n\n.time-control a {\n  color:#fff;\n  text-decoration:none;\n}\n");
+
+},{"insert-css":"/Users/tmcw/src/rpl/node_modules/insert-css/index.js"}],"/Users/tmcw/src/rpl/static/index.js":[function(require,module,exports){
+require('./css/css.js');
 
 var through = require('through');
 var shoe = require('shoe');
@@ -13394,34 +13396,68 @@ editor.setOption('theme', 'vibrant-ink');
 editor.on('change', function() {
   if (evalPause) return;
   clearTimeout(delayedClear);
-  stream.write(JSON.stringify({ value: editor.getValue() }));
+  writeJSON({ value: editor.getValue() });
 });
 
 stream.pipe(through(read));
 
-function makeWidget(name, x) {
+function makeWidget(values) {
   var indent = globalIndent;
+  var idx = 0;
   var msg = document.createElement('div');
-  msg.className = 'data';
   var pre = msg.appendChild(document.createElement('pre'));
-  pre.onclick = function() {
-    indent = !indent;
-    fillPre();
-  };
-  function fillPre() {
-    pre.innerHTML = JSON.stringify(JSON.parse(x), null, indent ? 2 : null);
-  }
-  fillPre();
   var n = msg.appendChild(document.createElement('div'));
   n.className = 'data-name';
-  n.innerHTML = name;
+  var name = n.appendChild(document.createElement('span'));
+  name.className = 'data-var';
+  name.innerHTML = values[idx].name;
+
+  msg.className = 'data';
+
+  pre.addEventListener('click', function() {
+    indent = !indent;
+    fillPre();
+  });
+  function fillPre(stringified) {
+    pre.innerHTML = JSON.stringify(
+        JSON.parse(stringified), null, indent ? 2 : null);
+  }
+
+  function setStep(_) {
+    var value = values[_];
+    fillPre(value.stringified);
+    if (count) count.innerHTML = (_ + 1) + '/' + values.length;
+    idx = _;
+  }
+
+  function nav(dir) {
+    return function() {
+      if (values[idx + dir]) setStep(idx + dir);
+      return false;
+    };
+  }
+
+  if (values.length > 1) {
+    var timeControl = n.appendChild(document.createElement('span'));
+    timeControl.className = 'time-control';
+    var backward = timeControl.appendChild(document.createElement('a'));
+    backward.innerHTML = '&larr;';
+    backward.href = '#';
+    var count = timeControl.appendChild(document.createElement('span'));
+    var forward = timeControl.appendChild(document.createElement('a'));
+    forward.innerHTML = '&rarr;';
+    forward.href = '#';
+    forward.addEventListener('click', nav(1));
+    backward.addEventListener('click', nav(-1));
+  }
+
+  setStep(0);
+
   return msg;
 }
 
 function clearData() {
-  widgets.forEach(function(w) {
-    editor.removeLineWidget(w);
-  });
+  widgets.forEach(editor.removeLineWidget);
   widgets = [];
 }
 
@@ -13447,27 +13483,27 @@ function read(str) {
 }
 
 function addWidget(val) {
+  var line = val[val.length - 1].line;
   return editor.addLineWidget(
-    val.line,
-    makeWidget(val.name, val.stringified), {
+    line,
+    makeWidget(val), {
       coverGutter: false,
       noHScroll: true
     });
 }
 
 function save() {
-  stream.write(JSON.stringify({
-    value: editor.getValue(),
-    command: 'save'
-  }));
+  writeJSON({ value: editor.getValue(), command: 'save' });
   return false;
 }
+
+function writeJSON(d) { stream.write(JSON.stringify(d)); }
 
 function values(d) {
   return Object.keys(d).map(function(k) { return d[k]; });
 }
 
-},{"./js/javascript":"/Users/tmcw/src/rpl/static/js/javascript.js","codemirror":"/Users/tmcw/src/rpl/node_modules/codemirror/lib/codemirror.js","insert-css":"/Users/tmcw/src/rpl/node_modules/insert-css/index.js","shoe":"/Users/tmcw/src/rpl/node_modules/shoe/browser.js","through":"/Users/tmcw/src/rpl/node_modules/through/index.js"}],"/Users/tmcw/src/rpl/static/js/javascript.js":[function(require,module,exports){
+},{"./css/css.js":"/Users/tmcw/src/rpl/static/css/css.js","./js/javascript":"/Users/tmcw/src/rpl/static/js/javascript.js","codemirror":"/Users/tmcw/src/rpl/node_modules/codemirror/lib/codemirror.js","shoe":"/Users/tmcw/src/rpl/node_modules/shoe/browser.js","through":"/Users/tmcw/src/rpl/node_modules/through/index.js"}],"/Users/tmcw/src/rpl/static/js/javascript.js":[function(require,module,exports){
 module.exports = function(CodeMirror) {
   // TODO actually recognize syntax of TypeScript constructs
 

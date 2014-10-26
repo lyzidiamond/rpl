@@ -1,9 +1,4 @@
-// preprocessing
-var fs = require('fs');
-var insertCss = require('insert-css');
-insertCss(fs.readFileSync(__dirname + '/css/vibrant-ink.css', 'utf8'));
-insertCss(fs.readFileSync(__dirname + '/css/codemirror.css', 'utf8'));
-insertCss(fs.readFileSync(__dirname + '/css/site.css', 'utf8'));
+require('./css/css.js');
 
 var through = require('through');
 var shoe = require('shoe');
@@ -44,34 +39,68 @@ editor.setOption('theme', 'vibrant-ink');
 editor.on('change', function() {
   if (evalPause) return;
   clearTimeout(delayedClear);
-  stream.write(JSON.stringify({ value: editor.getValue() }));
+  writeJSON({ value: editor.getValue() });
 });
 
 stream.pipe(through(read));
 
-function makeWidget(name, x) {
+function makeWidget(values) {
   var indent = globalIndent;
+  var idx = 0;
   var msg = document.createElement('div');
-  msg.className = 'data';
   var pre = msg.appendChild(document.createElement('pre'));
-  pre.onclick = function() {
-    indent = !indent;
-    fillPre();
-  };
-  function fillPre() {
-    pre.innerHTML = JSON.stringify(JSON.parse(x), null, indent ? 2 : null);
-  }
-  fillPre();
   var n = msg.appendChild(document.createElement('div'));
   n.className = 'data-name';
-  n.innerHTML = name;
+  var name = n.appendChild(document.createElement('span'));
+  name.className = 'data-var';
+  name.innerHTML = values[idx].name;
+
+  msg.className = 'data';
+
+  pre.addEventListener('click', function() {
+    indent = !indent;
+    fillPre();
+  });
+  function fillPre(stringified) {
+    pre.innerHTML = JSON.stringify(
+        JSON.parse(stringified), null, indent ? 2 : null);
+  }
+
+  function setStep(_) {
+    var value = values[_];
+    fillPre(value.stringified);
+    if (count) count.innerHTML = (_ + 1) + '/' + values.length;
+    idx = _;
+  }
+
+  function nav(dir) {
+    return function() {
+      if (values[idx + dir]) setStep(idx + dir);
+      return false;
+    };
+  }
+
+  if (values.length > 1) {
+    var timeControl = n.appendChild(document.createElement('span'));
+    timeControl.className = 'time-control';
+    var backward = timeControl.appendChild(document.createElement('a'));
+    backward.innerHTML = '&larr;';
+    backward.href = '#';
+    var count = timeControl.appendChild(document.createElement('span'));
+    var forward = timeControl.appendChild(document.createElement('a'));
+    forward.innerHTML = '&rarr;';
+    forward.href = '#';
+    forward.addEventListener('click', nav(1));
+    backward.addEventListener('click', nav(-1));
+  }
+
+  setStep(0);
+
   return msg;
 }
 
 function clearData() {
-  widgets.forEach(function(w) {
-    editor.removeLineWidget(w);
-  });
+  widgets.forEach(editor.removeLineWidget);
   widgets = [];
 }
 
@@ -97,21 +126,21 @@ function read(str) {
 }
 
 function addWidget(val) {
+  var line = val[val.length - 1].line;
   return editor.addLineWidget(
-    val.line,
-    makeWidget(val.name, val.stringified), {
+    line,
+    makeWidget(val), {
       coverGutter: false,
       noHScroll: true
     });
 }
 
 function save() {
-  stream.write(JSON.stringify({
-    value: editor.getValue(),
-    command: 'save'
-  }));
+  writeJSON({ value: editor.getValue(), command: 'save' });
   return false;
 }
+
+function writeJSON(d) { stream.write(JSON.stringify(d)); }
 
 function values(d) {
   return Object.keys(d).map(function(k) { return d[k]; });

@@ -64,3 +64,13 @@ body {
 .CodeMirror-linenumbers {
   background:#000;
 }
+
+.time-control {
+  color:#aee;
+  margin-left:10px;
+}
+
+.time-control a {
+  color:#fff;
+  text-decoration:none;
+}
