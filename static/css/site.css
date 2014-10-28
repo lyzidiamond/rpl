@@ -51,6 +51,11 @@ body {
   z-index:9999;
 }
 
+code.time {
+  color:#777;
+  margin-right:5px;
+}
+
 .CodeMirror {
   position:absolute;
   top:25px;

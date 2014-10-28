@@ -69,6 +69,7 @@ RPL.prototype.listen = function() {
       var sandbox = {
         INSTRUMENT: (function(thisTick) {
           var DATA = {};
+          var start = Date.now();
           var TODO = transformed.TODO;
           return {
             log: function(name, number, val) {
@@ -78,13 +79,12 @@ RPL.prototype.listen = function() {
               DATA[name + ':' + number].unshift({
                 name: name,
                 line: number,
-                stringified: stringify(val)
+                stringified: stringify(val),
+                when: Date.now() - start
               });
               TODO[name + ':' + number] = true;
               for (var k in TODO) {
-                if (!TODO[k]) {
-                  return;
-                }
+                if (!TODO[k]) return;
               }
               _UPDATE(thisTick);
             },

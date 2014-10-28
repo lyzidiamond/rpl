@@ -16,7 +16,7 @@ var evalPause = false,
   delayedClear = null;
 
 document.getElementById('evaluate').onchange = function(e) {
-  evalPause = !!e.target.checked;
+  evalPause = !e.target.checked;
 };
 
 document.getElementById('indent').onchange = function(e) {
@@ -47,10 +47,13 @@ stream.pipe(through(read));
 function makeWidget(values) {
   var indent = globalIndent;
   var idx = 0;
+  var value;
   var msg = document.createElement('div');
   var pre = msg.appendChild(document.createElement('pre'));
   var n = msg.appendChild(document.createElement('div'));
   n.className = 'data-name';
+  var preTime = n.appendChild(document.createElement('code'));
+  preTime.className = 'time';
   var name = n.appendChild(document.createElement('span'));
   name.className = 'data-var';
   name.innerHTML = values[idx].name;
@@ -61,14 +64,21 @@ function makeWidget(values) {
     indent = !indent;
     fillPre();
   });
-  function fillPre(stringified) {
-    pre.innerHTML = JSON.stringify(
-        JSON.parse(stringified), null, indent ? 2 : null);
+  function fillPre() {
+    try {
+      pre.innerHTML = JSON.stringify(
+        JSON.parse(value.stringified), null, indent ? 2 : null);
+      if (value.when > 0) {
+        preTime.innerHTML = value.when + 'ms';
+      } else {
+        preTime.innerHTML = '';
+      }
+    } catch(e) { }
   }
 
   function setStep(_) {
-    var value = values[_];
-    fillPre(value.stringified);
+    value = values[_];
+    fillPre();
     if (count) count.innerHTML = (_ + 1) + '/' + values.length;
     idx = _;
   }
@@ -105,6 +115,7 @@ function clearData() {
 }
 
 function read(str) {
+  if (evalPause) return;
   var d = JSON.parse(str);
 
   if (d.defaultValue) {
