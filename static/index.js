@@ -2,11 +2,18 @@ require('./css/css.js');
 
 var through = require('through');
 var shoe = require('shoe');
+var terrariumStream = require('terrarium-stream');
 
 var CodeMirror = require('codemirror');
 require('./js/javascript')(CodeMirror);
 
-var stream = shoe('/eval');
+var backends = {
+  node: function() { return shoe('/eval'); },
+  browser: function() { return terrariumStream(); }
+};
+
+var backend = null;
+var backendType = null;
 
 var error = document.getElementById('error');
 
@@ -21,6 +28,10 @@ document.getElementById('evaluate').onchange = function(e) {
 
 document.getElementById('indent').onchange = function(e) {
   globalIndent = !!e.target.checked;
+};
+
+document.getElementById('backend').onchange = function(e) {
+  setBackend(e.target.value);
 };
 
 var editor = CodeMirror.fromTextArea(document.getElementById('editor'), {
@@ -42,7 +53,15 @@ editor.on('change', function() {
   writeJSON({ value: editor.getValue() });
 });
 
-stream.pipe(through(read));
+setBackend('browser');
+
+function setBackend(type) {
+  if (backend) backend.destroy();
+  backend = backends[type]();
+  backend.pipe(through(read));
+  backend.on('err', onerr);
+  backendType = type;
+}
 
 function makeWidget(values) {
   var indent = globalIndent;
@@ -61,13 +80,19 @@ function makeWidget(values) {
   msg.className = 'data';
 
   pre.addEventListener('click', function() {
+    if (parsed.ELEMENT_NODE) return;
     indent = !indent;
     fillPre();
   });
   function fillPre() {
     try {
-      pre.innerHTML = JSON.stringify(
-        JSON.parse(value.stringified), null, indent ? 2 : null);
+      var parsed = value.val !== undefined ?
+          value.val : value.stringified;
+      if (parsed.ELEMENT_NODE && parsed.parentNode !== pre) {
+        pre.appendChild(parsed);
+      } else {
+        pre.innerHTML = JSON.stringify(parsed, null, indent ? 2 : null);
+      }
       if (value.when > 0) {
         preTime.innerHTML = value.when + 'ms';
       } else {
@@ -116,7 +141,7 @@ function clearData() {
 
 function read(str) {
   if (evalPause) return;
-  var d = JSON.parse(str);
+  var d = typeof str === 'string' ? JSON.parse(str) : str;
 
   if (d.defaultValue) {
     editor.setValue(d.defaultValue);
@@ -146,12 +171,24 @@ function addWidget(val) {
     });
 }
 
+function onerr(str) {
+  error.style.display = 'block';
+  error.innerHTML = str;
+  delayedClear = setTimeout(clearData, 1000);
+}
+
 function save() {
   writeJSON({ value: editor.getValue(), command: 'save' });
   return false;
 }
 
-function writeJSON(d) { stream.write(JSON.stringify(d)); }
+function writeJSON(d) {
+  if (backendType === 'node') {
+    backend.write(JSON.stringify(d));
+  } else {
+    backend.write(d);
+  }
+}
 
 function values(d) {
   return Object.keys(d).map(function(k) { return d[k]; });

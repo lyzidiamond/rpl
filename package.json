@@ -4,7 +4,7 @@
   "description": "repl",
   "main": "index.js",
   "scripts": {
-    "start": "node rpl.js & watchify static/index.js -o static/bundle.js"
+    "start": "node rpl.js & watchify -d static/index.js -o static/bundle.js"
   },
   "bin": {
     "rpl": "rpl.js"
@@ -17,12 +17,13 @@
   "author": "Tom MacWright",
   "license": "ISC",
   "dependencies": {
+    "chrome-app": "0.1.0",
+    "json-stringify-safe": "~5.0.0",
+    "minimist": "~1.1.0",
+    "opener": "~1.4.0",
     "shoe": "0.0.15",
     "st": "~0.5.2",
-    "minimist": "~1.1.0",
-    "chrome-app": "0.1.0",
-    "opener": "~1.4.0",
-    "json-stringify-safe": "~5.0.0"
+    "terrarium-stream": "^1.2.0"
   },
   "devDependencies": {
     "brfs": "~1.2.0",
