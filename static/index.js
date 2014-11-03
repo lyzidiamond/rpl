@@ -2,7 +2,7 @@ require('./css/css.js');
 
 var through = require('through');
 var shoe = require('shoe');
-var terrariumStream = require('terrarium-stream');
+var terrariumStream = require('terrarium-stream').Browser;
 
 var CodeMirror = require('codemirror');
 require('./js/javascript')(CodeMirror);

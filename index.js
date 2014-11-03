@@ -2,11 +2,11 @@
 
 var path = require('path'),
   http = require('http'),
-  vm = require('vm'),
+  through = require('through'),
   st = require('st'),
+  terrariumStream = require('terrarium-stream').Node,
   stringify = require('json-stringify-safe'),
   fs = require('fs'),
-  instrument = require('./lib/instrument.js'),
   shoe = require('shoe');
 
 // from https://github.com/joyent/node/blob/master/lib/repl.js
@@ -52,80 +52,15 @@ RPL.prototype.listen = function() {
       stream.write(JSON.stringify({ defaultValue: this.defaultValue }));
     }
 
-    var ondata = function(json) {
-      var value = JSON.parse(json);
+    var fromJSON = through(function(data) {
+      this.queue(JSON.parse(data));
+    });
 
-      if (value.command) {
-        fs.writeFileSync(this.filename, value.value);
-        return;
-      }
+    var toJSON = through(function(data) {
+      this.queue(JSON.stringify(data));
+    });
 
-      var abort = false;
-      var thisTick = Date.now();
-      var transformed = instrument(value.value, thisTick);
-
-      // sandbox is on object of all the methods the code will have when
-      // it runs inside of our temporary vm
-      var sandbox = {
-        INSTRUMENT: (function(thisTick) {
-          var DATA = {};
-          var start = Date.now();
-          var TODO = transformed.TODO;
-          return {
-            log: function(name, number, val) {
-              if (DATA[name + ':' + number] === undefined) {
-                DATA[name + ':' + number] = [];
-              }
-              DATA[name + ':' + number].unshift({
-                name: name,
-                line: number,
-                stringified: stringify(val),
-                when: Date.now() - start
-              });
-              TODO[name + ':' + number] = true;
-              for (var k in TODO) {
-                if (!TODO[k]) return;
-              }
-              _UPDATE(thisTick);
-            },
-            TODO: TODO,
-            DATA: DATA
-          };
-        })(thisTick),
-        _UPDATE: _UPDATE,
-        require: require,
-        module: module,
-        console: console,
-        setTimeout: setTimeout,
-        setInterval: setInterval
-      };
-
-      function _UPDATE(tick) {
-        if (tick !== thisTick) return;
-        process.nextTick(sendData);
-      }
-
-      function sendData() {
-        if (!abort) stream.write(JSON.stringify(sandbox.INSTRUMENT.DATA));
-      }
-
-      try {
-        // this could be smarter - the next version of node will support
-        // a timeout for this context. for now, we'll just settle.
-        vm.runInNewContext(transformed.result, sandbox, 'tmp.js');
-      } catch(e) {
-        // the vm will throw an error if the code has a syntax error
-        // or something like that.
-        stream.write(JSON.stringify({ error: e.message }));
-
-        // make sure we don't send messages after this
-        // that would hide the error.
-        abort = true;
-      }
-    }.bind(this);
-
-    // .on('data' is called when someone types some new code in the browser
-    stream.on('data', ondata);
+    stream.pipe(fromJSON).pipe(terrariumStream()).pipe(toJSON).pipe(stream);
 
   }.bind(this);
 
