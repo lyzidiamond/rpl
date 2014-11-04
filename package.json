@@ -17,8 +17,11 @@
   "author": "Tom MacWright",
   "license": "ISC",
   "dependencies": {
+    "chart.js": "^1.0.1-beta.2",
     "chrome-app": "0.1.0",
+    "is-geojson": "^1.0.1",
     "json-stringify-safe": "~5.0.0",
+    "mapbox.js": "^2.1.4",
     "minimist": "~1.1.0",
     "opener": "~1.4.0",
     "shoe": "0.0.15",

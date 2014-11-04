@@ -2,7 +2,12 @@ require('./css/css.js');
 
 var through = require('through');
 var shoe = require('shoe');
+var Chart = require('chart.js/Chart.js');
+var isGeoJSON = require('is-geojson');
 var terrariumStream = require('terrarium-stream').Browser;
+require('mapbox.js');
+
+L.mapbox.accessToken = 'pk.eyJ1IjoidG1jdyIsImEiOiJIZmRUQjRBIn0.lRARalfaGHnPdRcc-7QZYQ';
 
 var CodeMirror = require('codemirror');
 require('./js/javascript')(CodeMirror);
@@ -67,6 +72,8 @@ function makeWidget(values) {
   var indent = globalIndent;
   var idx = 0;
   var value;
+  var parsed;
+  var mode = 'json';
   var msg = document.createElement('div');
   var pre = msg.appendChild(document.createElement('pre'));
   var n = msg.appendChild(document.createElement('div'));
@@ -76,23 +83,60 @@ function makeWidget(values) {
   var name = n.appendChild(document.createElement('span'));
   name.className = 'data-var';
   name.innerHTML = values[idx].name;
+  var select = n.appendChild(document.createElement('select'));
+  ['json', 'chart', 'map'].forEach(function(type) {
+      var opt = select.appendChild(document.createElement('option'));
+      opt.value = opt.innerHTML = type;
+  });
+  select.onchange = function(e) {
+    mode = e.target.value;
+    fillPre();
+  };
 
   msg.className = 'data';
 
   pre.addEventListener('click', function() {
-    if (parsed.ELEMENT_NODE) return;
+    if (parsed.ELEMENT_NODE || mode === 'chart') return;
     indent = !indent;
     fillPre();
   });
+
   function fillPre() {
     try {
-      var parsed = value.val !== undefined ?
+      parsed = value.val !== undefined ?
           value.val : value.stringified;
       if (parsed.ELEMENT_NODE && parsed.parentNode !== pre) {
         pre.appendChild(parsed);
-      } else {
+      } else if (mode === 'json') {
         pre.innerHTML = JSON.stringify(parsed, null, indent ? 2 : null);
+      } else if (mode === 'chart') {
+        pre.innerHTML = '';
+        var canvas = pre.appendChild(document.createElement('canvas'));
+        canvas.width = 800;
+        canvas.height = 200;
+        new Chart(canvas.getContext('2d')).Line({
+          labels: values.map(function(v, i) { return i; }),
+          datasets: [{
+            label: "variable",
+            fillColor: "rgba(220,220,220,0.2)",
+            strokeColor: "rgba(220,220,220,1)",
+            pointColor: "rgba(220,220,220,1)",
+            pointStrokeColor: "#fff",
+            pointHighlightFill: "#fff",
+            pointHighlightStroke: "rgba(220,220,220,1)",
+            data: values.map(function(v) { return v.val; })
+          }]
+        });
+      } else if (mode === 'map') {
+        pre.innerHTML = '';
+        var div = pre.appendChild(document.createElement('div'));
+        div.style.height = '300px';
+        var features = L.mapbox.featureLayer(parsed);
+        var map = L.mapbox.map(div, 'tmcw.map-7s15q36b')
+          .addLayer(features);
+        map.fitBounds(features.getBounds());
       }
+
       if (value.when > 0) {
         preTime.innerHTML = value.when + 'ms';
       } else {
