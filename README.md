@@ -16,6 +16,8 @@ It also supports async instrumentation, since node is node.
 
 ![](images/fs.gif)
 
+![](images/sin.gif)
+
 ![](images/magic2.gif)
 
 ```js
