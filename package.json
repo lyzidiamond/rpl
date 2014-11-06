@@ -1,6 +1,6 @@
 {
   "name": "rpl",
-  "version": "0.7.2",
+  "version": "0.7.1",
   "description": "repl",
   "main": "index.js",
   "scripts": {
@@ -30,12 +30,12 @@
     "opener": "~1.4.0",
     "shoe": "0.0.15",
     "st": "~0.5.2",
-    "terrarium-stream": "^1.3.0"
+    "terrarium-stream": "^1.2.0",
+    "through": "~2.3.6"
   },
   "devDependencies": {
     "brfs": "~1.2.0",
     "codemirror": "https://github.com/tmcw/CodeMirror/archive/module-export.tar.gz",
-    "through": "~2.3.6",
     "insert-css": "~0.2.0",
     "browserify": "~6.0.2"
   }
