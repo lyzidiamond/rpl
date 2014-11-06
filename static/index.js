@@ -1,10 +1,14 @@
 require('./css/css.js');
 
+var Combine = require('stream-combiner');
 var through = require('through');
 var shoe = require('shoe');
 var Chart = require('chart.js/Chart.js');
 var isGeoJSON = require('is-geojson');
 var terrariumStream = require('terrarium-stream').Browser;
+var streams = require('../shared/streams.js');
+function $(_) { return document.getElementById(_); }
+var error = $('error');
 require('mapbox.js');
 
 L.mapbox.accessToken = 'pk.eyJ1IjoidG1jdyIsImEiOiJIZmRUQjRBIn0.lRARalfaGHnPdRcc-7QZYQ';
@@ -13,33 +17,22 @@ var CodeMirror = require('codemirror');
 require('./js/javascript')(CodeMirror);
 
 var backends = {
-  node: function() { return shoe('/eval'); },
+  node: function() {
+    return Combine(streams.toJSON(), shoe('/eval'), streams.fromJSON());
+  },
   browser: function() { return terrariumStream(); }
 };
 
 var backend = null;
 var backendType = null;
+var widgets = [];
 
-var error = document.getElementById('error');
+var evalPause = false, globalIndent = false, delayedClear = null;
+$('evaluate').onchange = function(e) {  evalPause = !e.target.checked; };
+$('indent').onchange = function(e) { globalIndent = !!e.target.checked; };
+$('backend').onchange = function(e) { setBackend(e.target.value); };
 
-var evalPause = false,
-  globalIndent = false,
-  widgets = [],
-  delayedClear = null;
-
-document.getElementById('evaluate').onchange = function(e) {
-  evalPause = !e.target.checked;
-};
-
-document.getElementById('indent').onchange = function(e) {
-  globalIndent = !!e.target.checked;
-};
-
-document.getElementById('backend').onchange = function(e) {
-  setBackend(e.target.value);
-};
-
-var editor = CodeMirror.fromTextArea(document.getElementById('editor'), {
+var editor = CodeMirror.fromTextArea($('editor'), {
   indentUnit: 2,
   mode: 'text/javascript',
   lineNumbers: true,
@@ -50,12 +43,17 @@ var editor = CodeMirror.fromTextArea(document.getElementById('editor'), {
   }
 });
 
+function save() {
+  backend.write({ value: editor.getValue(), command: 'save' });
+  return false;
+}
+
 editor.setOption('theme', 'vibrant-ink');
 
 editor.on('change', function() {
   if (evalPause) return;
   clearTimeout(delayedClear);
-  writeJSON({ value: editor.getValue() });
+  backend.write({ value: editor.getValue() });
 });
 
 setBackend('browser');
@@ -96,7 +94,7 @@ function makeWidget(values) {
   msg.className = 'data';
 
   pre.addEventListener('click', function() {
-    if (parsed.ELEMENT_NODE || mode === 'chart') return;
+    if (parsed.ELEMENT_NODE || mode !== 'json') return;
     indent = !indent;
     fillPre();
   });
@@ -183,9 +181,8 @@ function clearData() {
   widgets = [];
 }
 
-function read(str) {
+function read(d) {
   if (evalPause) return;
-  var d = typeof str === 'string' ? JSON.parse(str) : str;
 
   if (d.defaultValue) {
     editor.setValue(d.defaultValue);
@@ -219,19 +216,6 @@ function onerr(str) {
   error.style.display = 'block';
   error.innerHTML = str;
   delayedClear = setTimeout(clearData, 1000);
-}
-
-function save() {
-  writeJSON({ value: editor.getValue(), command: 'save' });
-  return false;
-}
-
-function writeJSON(d) {
-  if (backendType === 'node') {
-    backend.write(JSON.stringify(d));
-  } else {
-    backend.write(d);
-  }
 }
 
 function values(d) {

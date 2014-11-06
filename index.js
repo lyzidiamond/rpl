@@ -2,6 +2,7 @@
 
 var path = require('path'),
   http = require('http'),
+  streams = require('./shared/streams.js'),
   through = require('through'),
   st = require('st'),
   terrariumStream = require('terrarium-stream').Node,
@@ -52,15 +53,10 @@ RPL.prototype.listen = function() {
       stream.write(JSON.stringify({ defaultValue: this.defaultValue }));
     }
 
-    var fromJSON = through(function(data) {
-      this.queue(JSON.parse(data));
-    });
-
-    var toJSON = through(function(data) {
-      this.queue(JSON.stringify(data));
-    });
-
-    stream.pipe(fromJSON).pipe(terrariumStream()).pipe(toJSON).pipe(stream);
+    stream.pipe(streams.fromJSON())
+      .pipe(terrariumStream())
+      .pipe(streams.toJSON())
+      .pipe(stream);
 
   }.bind(this);
 
