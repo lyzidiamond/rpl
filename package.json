@@ -30,7 +30,7 @@
     "opener": "~1.4.0",
     "shoe": "0.0.15",
     "st": "~0.5.2",
-    "terrarium-stream": "^1.2.0"
+    "terrarium-stream": "^1.3.0"
   },
   "devDependencies": {
     "brfs": "~1.2.0",
