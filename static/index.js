@@ -72,6 +72,7 @@ function makeWidget(values) {
   var value;
   var parsed;
   var mode = 'json';
+
   var msg = document.createElement('div');
   var pre = msg.appendChild(document.createElement('pre'));
   var n = msg.appendChild(document.createElement('div'));
@@ -101,38 +102,11 @@ function makeWidget(values) {
 
   function fillPre() {
     try {
-      parsed = value.val !== undefined ?
-          value.val : value.stringified;
+      parsed = value.val !== undefined ? value.val : value.stringified;
       if (parsed.ELEMENT_NODE && parsed.parentNode !== pre) {
-        pre.appendChild(parsed);
       } else if (mode === 'json') {
-        pre.innerHTML = JSON.stringify(parsed, null, indent ? 2 : null);
       } else if (mode === 'chart') {
-        pre.innerHTML = '';
-        var canvas = pre.appendChild(document.createElement('canvas'));
-        canvas.width = 800;
-        canvas.height = 200;
-        new Chart(canvas.getContext('2d')).Line({
-          labels: values.map(function(v, i) { return i; }),
-          datasets: [{
-            label: "variable",
-            fillColor: "rgba(220,220,220,0.2)",
-            strokeColor: "rgba(220,220,220,1)",
-            pointColor: "rgba(220,220,220,1)",
-            pointStrokeColor: "#fff",
-            pointHighlightFill: "#fff",
-            pointHighlightStroke: "rgba(220,220,220,1)",
-            data: values.map(function(v) { return v.val; })
-          }]
-        });
       } else if (mode === 'map') {
-        pre.innerHTML = '';
-        var div = pre.appendChild(document.createElement('div'));
-        div.style.height = '300px';
-        var features = L.mapbox.featureLayer(parsed);
-        var map = L.mapbox.map(div, 'tmcw.map-7s15q36b')
-          .addLayer(features);
-        map.fitBounds(features.getBounds());
       }
 
       if (value.when > 0) {
@@ -176,9 +150,86 @@ function makeWidget(values) {
   return msg;
 }
 
-function clearData() {
+var widgetTypes = {
+  json: function(value) {
+    var element = container.firstChild;
+
+    if (element && element.pre) {
+      update();
+    } else {
+      setup();
+      update();
+    }
+
+    function setup() {
+      element = pre.appendChild(document.createElement('pre'));
+      element.pre = true;
+    }
+    function update() {
+      element.innerHTML = JSON.stringify(parsed, null, indent ? 2 : null);
+    }
+  },
+  element: function(value) {
+    pre.appendChild(parsed);
+  },
+  map: function(value) {
+    var div = pre.appendChild(document.createElement('div'));
+    div.style.height = '300px';
+    var features = L.mapbox.featureLayer(parsed);
+    var map = L.mapbox.map(div, 'tmcw.map-7s15q36b')
+      .addLayer(features);
+    map.fitBounds(features.getBounds());
+  },
+  chart: function(container, value) {
+    var element = container.firstChild;
+
+    if (element && element.chart) {
+      update();
+    } else {
+      setup();
+      update();
+    }
+
+    function setup() {
+      element = pre.appendChild(document.createElement('canvas'));
+      element.width = 800;
+      element.height = 200;
+      element.chart = new Chart(canvas.getContext('2d')).Line({
+        labels: values.map(function(v, i) { return i; }),
+        datasets: [{
+          label: 'variable',
+          bezierCurve: false,
+          fillColor: 'rgba(220,220,220,0.2)',
+          strokeColor: 'rgba(220,220,220,1)',
+          pointColor: 'rgba(220,220,220,1)',
+          pointStrokeColor: '#fff',
+          pointHighlightFill: '#fff',
+          pointHighlightStroke: 'rgba(220,220,220,1)',
+        }]
+      });
+    }
+
+    function update() {
+      element.chart.datasets[0].data = values.map(function(v) { return v.val; });
+      element.chart.update();
+    }
+  }
+};
+
+function joinWidgets(data) {
   widgets.forEach(editor.removeLineWidget);
   widgets = [];
+  data.forEach(addWidget);
+
+  function addWidget(val) {
+    var line = val[val.length - 1].line;
+    return editor.addLineWidget(
+      line,
+      makeWidget(val), {
+        coverGutter: false,
+        noHScroll: true
+      });
+  }
 }
 
 function read(d) {
@@ -194,30 +245,17 @@ function read(d) {
   if (d.error) {
     error.style.display = 'block';
     error.innerHTML = d.error;
-    delayedClear = setTimeout(clearData, 1000);
+    delayedClear = setTimeout(joinWidgets, 1000);
   } else {
     error.style.display = 'none';
-    clearData();
-    widgets = values(d).map(addWidget);
+    joinWidgets(values(d));
   }
-}
-
-function addWidget(val) {
-  var line = val[val.length - 1].line;
-  return editor.addLineWidget(
-    line,
-    makeWidget(val), {
-      coverGutter: false,
-      noHScroll: true
-    });
 }
 
 function onerr(str) {
   error.style.display = 'block';
   error.innerHTML = str;
-  delayedClear = setTimeout(clearData, 1000);
+  delayedClear = setTimeout(joinWidgets, 1000);
 }
 
-function values(d) {
-  return Object.keys(d).map(function(k) { return d[k]; });
-}
+function values(d) { return Object.keys(d).map(function(k) { return d[k]; }); }
