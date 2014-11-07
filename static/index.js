@@ -3,11 +3,16 @@ require('./css/css.js');
 var Combine = require('stream-combiner');
 var through = require('through');
 var shoe = require('shoe');
-var Chart = require('chart.js/Chart.js');
+var Rickshaw = require('rickshaw');
 var isGeoJSON = require('is-geojson');
 var terrariumStream = require('terrarium-stream').Browser;
 var streams = require('../shared/streams.js');
 function $(_) { return document.getElementById(_); }
+function ce(_, c) {
+    var elem = document.createElement(_);
+    elem.className = c || '';
+    return elem;
+}
 var error = $('error');
 require('mapbox.js');
 
@@ -29,7 +34,6 @@ var widgets = [];
 
 var evalPause = false, globalIndent = false, delayedClear = null;
 $('evaluate').onchange = function(e) {  evalPause = !e.target.checked; };
-$('indent').onchange = function(e) { globalIndent = !!e.target.checked; };
 $('backend').onchange = function(e) { setBackend(e.target.value); };
 
 var editor = CodeMirror.fromTextArea($('editor'), {
@@ -67,24 +71,22 @@ function setBackend(type) {
 }
 
 function makeWidget(values) {
-  var indent = globalIndent;
   var idx = 0;
   var value;
   var parsed;
+  var count;
   var mode = 'json';
 
-  var msg = document.createElement('div');
-  var pre = msg.appendChild(document.createElement('pre'));
-  var n = msg.appendChild(document.createElement('div'));
+  var msg = ce('div');
+  var pre = msg.appendChild(ce('pre'));
+  var n = msg.appendChild(ce('div', 'data-name'));
   n.className = 'data-name';
-  var preTime = n.appendChild(document.createElement('code'));
-  preTime.className = 'time';
-  var name = n.appendChild(document.createElement('span'));
-  name.className = 'data-var';
+  var preTime = n.appendChild(ce('code', 'time'));
+  var name = n.appendChild(ce('span', 'data-var'));
   name.innerHTML = values[idx].name;
-  var select = n.appendChild(document.createElement('select'));
+  var select = n.appendChild(ce('select'));
   ['json', 'chart', 'map'].forEach(function(type) {
-      var opt = select.appendChild(document.createElement('option'));
+      var opt = select.appendChild(ce('option'));
       opt.value = opt.innerHTML = type;
   });
   select.onchange = function(e) {
@@ -94,19 +96,18 @@ function makeWidget(values) {
 
   msg.className = 'data';
 
-  pre.addEventListener('click', function() {
-    if (parsed.ELEMENT_NODE || mode !== 'json') return;
-    indent = !indent;
-    fillPre();
-  });
-
   function fillPre() {
     try {
       parsed = value.val !== undefined ? value.val : value.stringified;
+
       if (parsed.ELEMENT_NODE && parsed.parentNode !== pre) {
+        widgetTypes.element(pre, parsed);
       } else if (mode === 'json') {
+        widgetTypes.json(pre, parsed);
       } else if (mode === 'chart') {
+        widgetTypes.chart(pre, parsed);
       } else if (mode === 'map') {
+        widgetTypes.map(pre, parsed);
       }
 
       if (value.when > 0) {
@@ -118,6 +119,7 @@ function makeWidget(values) {
   }
 
   function setStep(_) {
+    _ = Math.min(values.length - 1, Math.max(0, _));
     value = values[_];
     fillPre();
     if (count) count.innerHTML = (_ + 1) + '/' + values.length;
@@ -131,51 +133,66 @@ function makeWidget(values) {
     };
   }
 
-  if (values.length > 1) {
-    var timeControl = n.appendChild(document.createElement('span'));
-    timeControl.className = 'time-control';
-    var backward = timeControl.appendChild(document.createElement('a'));
-    backward.innerHTML = '&larr;';
-    backward.href = '#';
-    var count = timeControl.appendChild(document.createElement('span'));
-    var forward = timeControl.appendChild(document.createElement('a'));
-    forward.innerHTML = '&rarr;';
-    forward.href = '#';
-    forward.addEventListener('click', nav(1));
-    backward.addEventListener('click', nav(-1));
+  function showNav() {
+    if (values.length > 1) {
+      if (n.getElementsByClassName('time-control').length) {
+        n.getElementsByClassName('time-control')[0].parentNode.removeChild(n.getElementsByClassName('time-control')[0]);
+      }
+      var timeControl = n.appendChild(ce('span', 'time-control'));
+      timeControl.className = 'time-control';
+      var backward = timeControl.appendChild(ce('a'));
+      backward.innerHTML = '&larr;';
+      backward.href = '#';
+      count = timeControl.appendChild(ce('span'));
+      var forward = timeControl.appendChild(ce('a'));
+      forward.innerHTML = '&rarr;';
+      forward.href = '#';
+      forward.addEventListener('click', nav(1));
+      backward.addEventListener('click', nav(-1));
+    }
   }
 
+  showNav();
   setStep(0);
 
-  return msg;
+  return {
+    element: msg,
+    update: function(_) {
+      values = _;
+      showNav();
+      fillPre();
+      setStep(idx);
+    }
+  };
 }
 
 var widgetTypes = {
-  json: function(value) {
+  json: function(container, value) {
     var element = container.firstChild;
 
-    if (element && element.pre) {
+    if (element && element.mode !== 'json')  container.innerHTML = '';
+
+    if (element && element.mode == 'json') {
       update();
     } else {
-      setup();
-      update();
+      setup(); update();
     }
 
     function setup() {
-      element = pre.appendChild(document.createElement('pre'));
-      element.pre = true;
+      element = container.appendChild(ce('pre'));
+      element.mode = 'json';
     }
     function update() {
-      element.innerHTML = JSON.stringify(parsed, null, indent ? 2 : null);
+      element.innerHTML = JSON.stringify(value, null, 2);
     }
   },
-  element: function(value) {
-    pre.appendChild(parsed);
+  element: function(container, value) {
+    container.appendChild(value);
   },
-  map: function(value) {
-    var div = pre.appendChild(document.createElement('div'));
+  map: function(container, value) {
+    var div = container.appendChild(document.createElement('div'));
     div.style.height = '300px';
-    var features = L.mapbox.featureLayer(parsed);
+    var features = L.mapbox.featureLayer(value);
     var map = L.mapbox.map(div, 'tmcw.map-7s15q36b')
       .addLayer(features);
     map.fitBounds(features.getBounds());
@@ -183,7 +200,9 @@ var widgetTypes = {
   chart: function(container, value) {
     var element = container.firstChild;
 
-    if (element && element.chart) {
+    if (element && element.mode !== 'chart')  container.innerHTML = '';
+
+    if (element && element.mode == 'chart') {
       update();
     } else {
       setup();
@@ -191,44 +210,75 @@ var widgetTypes = {
     }
 
     function setup() {
-      element = pre.appendChild(document.createElement('canvas'));
-      element.width = 800;
-      element.height = 200;
-      element.chart = new Chart(canvas.getContext('2d')).Line({
-        labels: values.map(function(v, i) { return i; }),
-        datasets: [{
-          label: 'variable',
-          bezierCurve: false,
-          fillColor: 'rgba(220,220,220,0.2)',
-          strokeColor: 'rgba(220,220,220,1)',
-          pointColor: 'rgba(220,220,220,1)',
-          pointStrokeColor: '#fff',
-          pointHighlightFill: '#fff',
-          pointHighlightStroke: 'rgba(220,220,220,1)',
+      element = container.appendChild(document.createElement('div'));
+      element.chart = new Rickshaw.Graph({
+        element: element,
+        width: 960,
+        height: 300,
+        renderer: 'line',
+        series: [{
+          color: "#fff",
+          data: value.map(function(d, i) {
+            return { x: i, y: d };
+          }),
+          name: 'variable'
         }]
       });
+      var hoverDetail = new Rickshaw.Graph.HoverDetail({
+        graph: element.chart
+      });
+      element.chart.render();
+      element.mode = 'chart';
     }
 
     function update() {
-      element.chart.datasets[0].data = values.map(function(v) { return v.val; });
+      element.chart.series[0].data = value.map(function(d, i) {
+        return { x: i, y: d };
+      });
       element.chart.update();
     }
   }
 };
 
-function joinWidgets(data) {
-  widgets.forEach(editor.removeLineWidget);
-  widgets = [];
-  data.forEach(addWidget);
+function joinWidgets(newData) {
 
-  function addWidget(val) {
+  // remove old widgets
+  widgets = widgets.filter(function(widget) {
+    if (!newData[widget.id]) {
+      editor.removeLineWidget(widget);
+      return false;
+    } else {
+      return true;
+    }
+  });
+
+  var widgetsById = widgets.reduce(function(memo, w) {
+    memo[w.id] = w;
+    return memo;
+  }, {});
+
+  for (var id in newData) {
+    if (widgetsById[id]) {
+      // update existing widgets
+      widgetsById[id].update(newData[id]);
+    } else {
+      // create new widgets
+      widgets.push(addWidget(newData[id], id));
+    }
+  }
+
+  function addWidget(val, id) {
     var line = val[val.length - 1].line;
-    return editor.addLineWidget(
+    var w = makeWidget(val);
+    var widget = editor.addLineWidget(
       line,
-      makeWidget(val), {
+      w.element, {
         coverGutter: false,
         noHScroll: true
       });
+    widget.id = id;
+    widget.update = w.update;
+    return widget;
   }
 }
 
@@ -248,7 +298,7 @@ function read(d) {
     delayedClear = setTimeout(joinWidgets, 1000);
   } else {
     error.style.display = 'none';
-    joinWidgets(values(d));
+    joinWidgets(d);
   }
 }
 
