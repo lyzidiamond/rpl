@@ -190,12 +190,29 @@ var widgetTypes = {
     container.appendChild(value);
   },
   map: function(container, value) {
-    var div = container.appendChild(document.createElement('div'));
-    div.style.height = '300px';
-    var features = L.mapbox.featureLayer(value);
-    var map = L.mapbox.map(div, 'tmcw.map-7s15q36b')
-      .addLayer(features);
-    map.fitBounds(features.getBounds());
+    var element = container.firstChild;
+
+    if (element && element.mode !== 'map')  container.innerHTML = '';
+
+    if (element && element.mode == 'map') {
+      update();
+    } else {
+      setup();
+      update();
+    }
+
+    function setup() {
+      element = container.appendChild(document.createElement('div'));
+      element.mode = 'map';
+      element.style.height = '300px';
+      element.features = L.mapbox.featureLayer();
+      element.map = L.mapbox.map(element, 'tmcw.map-7s15q36b')
+        .addLayer(element.features);
+    }
+
+    function update() {
+      element.features.setGeoJSON(value);
+    }
   },
   chart: function(container, value) {
     var element = container.firstChild;
