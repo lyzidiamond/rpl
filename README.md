@@ -34,7 +34,7 @@ rpl [-b] [-o] [FILENAME]
       |   |    |
       |   |    | prefill the cli with the contents of a file
       |   |
-      |   | -b open your browser to the page
+      |   | -o open your browser to the page
       |
       | -b open a chrome app standalone window
 ```
