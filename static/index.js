@@ -100,7 +100,7 @@ function makeWidget(values) {
     try {
       parsed = value.val !== undefined ? value.val : value.stringified;
 
-      if (parsed.ELEMENT_NODE && parsed.parentNode !== pre) {
+      if (parsed.ELEMENT_NODE) {
         widgetTypes.element(pre, parsed);
       } else if (mode === 'json') {
         widgetTypes.json(pre, parsed);
@@ -187,6 +187,7 @@ var widgetTypes = {
     }
   },
   element: function(container, value) {
+    container.innerHTML = '';
     container.appendChild(value);
   },
   map: function(container, value) {
@@ -206,7 +207,8 @@ var widgetTypes = {
       element.mode = 'map';
       element.style.height = '300px';
       element.features = L.mapbox.featureLayer();
-      element.map = L.mapbox.map(element, 'tmcw.map-7s15q36b')
+      element.map = L.mapbox.map(element, 'tmcw.map-7s15q36b', {
+        zoomControl: false })
         .addLayer(element.features);
     }
 
