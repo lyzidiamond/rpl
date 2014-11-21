@@ -10,6 +10,7 @@ test('rpl - listen & close', function(t) {
     stream.on('data', function(data) {
       t.equal(JSON.parse(data)['1:0'][0].name, '1', 'response.name');
       rpl.close(function(err, res) {
+        t.pass('closed');
         t.end();
       });
     });
