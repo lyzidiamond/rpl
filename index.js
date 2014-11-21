@@ -41,9 +41,12 @@ function RPL(filename) {
   }));
 }
 
+RPL.prototype.close = function() {
+  this.server.close.apply(this.server, arguments);
+};
+
 RPL.prototype.listen = function() {
   this.server.listen.apply(this.server, arguments);
-
 
   var onstream = function(stream) {
 
