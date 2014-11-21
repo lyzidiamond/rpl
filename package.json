@@ -36,8 +36,10 @@
   },
   "devDependencies": {
     "brfs": "~1.2.0",
+    "browserify": "~6.0.2",
     "codemirror": "https://github.com/tmcw/CodeMirror/archive/module-export.tar.gz",
     "insert-css": "~0.2.0",
-    "browserify": "~6.0.2"
+    "sockjs-stream": "^1.0.2",
+    "tape": "^3.0.3"
   }
 }

@@ -1,5 +1,7 @@
 ![rpl](images/logo.png)
 
+[![build status](https://secure.travis-ci.org/tmcw/rpl.png)](http://travis-ci.org/tmcw/rpl)
+
 `rpl` for the future and past. An alternative to the `node` default
 REPL (what you access when you just call `node` and can type in lines of code).
 
