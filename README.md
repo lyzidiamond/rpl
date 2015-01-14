@@ -1,3 +1,5 @@
+### See [rpl-www](https://github.com/tmcw/rpl-www) for a sibling project that's usable in a browser as a JavaScript library.
+
 ![rpl](images/logo.png)
 
 [![build status](https://secure.travis-ci.org/tmcw/rpl.png)](http://travis-ci.org/tmcw/rpl)
